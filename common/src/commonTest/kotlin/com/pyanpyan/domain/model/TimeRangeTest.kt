@@ -48,4 +48,24 @@ class TimeRangeTest {
         assertTrue(range.contains(LocalTime(12, 0)))
         assertTrue(range.contains(LocalTime(23, 59)))
     }
+
+    @Test
+    fun time_at_exact_start_is_within_range() {
+        val range = TimeRange.Specific(
+            startTime = LocalTime(9, 0),
+            endTime = LocalTime(17, 0)
+        )
+
+        assertTrue(range.contains(LocalTime(9, 0)))
+    }
+
+    @Test
+    fun time_at_exact_end_is_within_range() {
+        val range = TimeRange.Specific(
+            startTime = LocalTime(9, 0),
+            endTime = LocalTime(17, 0)
+        )
+
+        assertTrue(range.contains(LocalTime(17, 0)))
+    }
 }
