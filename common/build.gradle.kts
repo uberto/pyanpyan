@@ -1,25 +1,17 @@
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization")
     id("com.android.library")
 }
 
-android {
-    namespace = "com.ubertob.pyanpyan.common"
-    compileSdk = 34
-
-    defaultConfig {
-        minSdk = 24
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-}
-
 kotlin {
-    androidTarget()
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -33,5 +25,19 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
+    }
+}
+
+android {
+    namespace = "com.ubertob.pyanpyan.common"
+    compileSdk = 34
+
+    defaultConfig {
+        minSdk = 24
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
