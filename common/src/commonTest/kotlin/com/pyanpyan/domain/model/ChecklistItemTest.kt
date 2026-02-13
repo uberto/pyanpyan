@@ -2,6 +2,7 @@ package com.pyanpyan.domain.model
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class ChecklistItemTest {
 
@@ -57,5 +58,26 @@ class ChecklistItemTest {
         val resetItem = item.reset()
 
         assertEquals(ChecklistItemState.Pending, resetItem.state)
+    }
+
+    @Test
+    fun `item can have optional icon`() {
+        val withIcon = ChecklistItem(
+            id = ChecklistItemId("test"),
+            title = "Brush teeth",
+            iconId = ItemIconId("tooth"),
+            state = ChecklistItemState.Pending
+        )
+
+        assertEquals(ItemIconId("tooth"), withIcon.iconId)
+
+        val noIcon = ChecklistItem(
+            id = ChecklistItemId("test"),
+            title = "Other task",
+            iconId = null,
+            state = ChecklistItemState.Pending
+        )
+
+        assertNull(noIcon.iconId)
     }
 }
