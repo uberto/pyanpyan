@@ -140,7 +140,144 @@ Do not optimize prematurely.
 
 ---
 
-## 9. Output Expectations
+## 9. Kotlin Coding Conventions
+
+### 9.1 Expression Syntax
+
+* Prefer expression-body functions over block bodies with explicit returns.
+* Use `=` syntax when the function body is a single expression.
+
+**Good:**
+```kotlin
+fun getRepository(context: Context): ChecklistRepository =
+    repository ?: createRepository(context)
+
+fun deleteChecklist(id: ChecklistId) = viewModelScope.launch {
+    repository.deleteChecklist(id)
+}
+```
+
+**Avoid:**
+```kotlin
+fun getRepository(context: Context): ChecklistRepository {
+    return repository ?: createRepository(context)
+}
+
+fun deleteChecklist(id: ChecklistId) {
+    viewModelScope.launch {
+        repository.deleteChecklist(id)
+    }
+}
+```
+
+---
+
+### 9.2 JSON Serialization
+
+* Use **kondor-json** for all JSON serialization.
+* Define explicit codec objects (no reflection, no annotations).
+* Use snake_case for JSON field names.
+
+**Required approach:**
+```kotlin
+object JChecklist : JAny<Checklist>() {
+    val id by str(JChecklistId, Checklist::id)
+    val name by str(Checklist::name)
+    val state_persistence by str(JStatePersistenceDuration, Checklist::statePersistence)
+
+    override fun JsonNodeObject.deserializeOrThrow() =
+        Checklist(id = +id, name = +name, statePersistence = +state_persistence)
+}
+```
+
+**Do not use:**
+* kotlinx.serialization with @Serializable annotations
+* Gson or Moshi reflection-based serialization
+
+---
+
+### 9.3 Error Handling
+
+* Use **kondor-outcome** for error handling (Outcome/Either types).
+* Prefer functional combinators over imperative error handling.
+* Use `Outcome.tryThis` to wrap exception-throwing code.
+
+**Good:**
+```kotlin
+fun loadData(): Outcome<Error, Data> =
+    Outcome.tryThis { file.readText() }
+        .bind { json -> parseJson(json) }
+        .map { data -> transformData(data) }
+        .transformFailure { e -> Error.FileReadError(e.message) }
+```
+
+**Avoid:**
+```kotlin
+fun loadData(): Data {
+    try {
+        val text = file.readText()
+        val json = parseJson(text)
+        return transformData(json)
+    } catch (e: Exception) {
+        throw Error.FileReadError(e.message)
+    }
+}
+```
+
+**Use these combinators:**
+* `map` - transform success value
+* `bind` - chain operations that return Outcome
+* `transform` - handle both success and failure
+* `transformFailure` - map error types
+* `onFailure` - side effect on failure
+* `orThrow()` - only in tests or when failure is impossible
+
+---
+
+### 9.4 Functional Combinators
+
+* Prefer functional combinators over explicit conditionals.
+* Chain operations using `let`, `also`, `run`, `apply`, `takeIf`, etc.
+
+**Good:**
+```kotlin
+file.takeIf { it.exists() }
+    ?.readText()
+    ?.let { json -> parseJson(json) }
+    ?: emptyList()
+```
+
+**Acceptable but less idiomatic:**
+```kotlin
+if (file.exists()) {
+    val text = file.readText()
+    parseJson(text)
+} else {
+    emptyList()
+}
+```
+
+---
+
+## 10. Library Requirements
+
+### 10.1 Mandatory Libraries
+
+* **kondor-json** - JSON serialization (https://github.com/uberto/kondor-json)
+* **kondor-outcome** - Error handling with Outcome/Either types
+* **kotlinx-datetime** - Date/time handling (multiplatform)
+* **kotlinx-coroutines** - Async/concurrency
+
+### 10.2 Prohibited Libraries
+
+Do not use without explicit approval:
+* kotlinx.serialization (use kondor-json instead)
+* Gson, Moshi, Jackson (use kondor-json instead)
+* Java Date/Time APIs (use kotlinx-datetime instead)
+
+---
+
+## 11. Output Expectations
 
 When producing code or changes:
 
