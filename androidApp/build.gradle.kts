@@ -1,5 +1,6 @@
 plugins {
     kotlin("android")
+    kotlin("plugin.compose")
     id("com.android.application")
 }
 
@@ -17,10 +18,6 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     compileOptions {
