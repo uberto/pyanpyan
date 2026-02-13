@@ -29,7 +29,11 @@ class ChecklistViewModel : ViewModel() {
             // Temporary mock data - will be replaced with repository
             val mockChecklist = Checklist(
                 id = ChecklistId("morning-routine"),
-                title = "Morning Routine",
+                name = "Morning Routine",
+                schedule = ChecklistSchedule(
+                    daysOfWeek = emptySet(),
+                    timeRange = TimeRange.AllDay
+                ),
                 items = listOf(
                     ChecklistItem(
                         id = ChecklistItemId("brush-teeth"),
@@ -41,7 +45,10 @@ class ChecklistViewModel : ViewModel() {
                         title = "Get dressed",
                         state = ChecklistItemState.Pending
                     )
-                )
+                ),
+                color = ChecklistColor.SOFT_BLUE,
+                statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
+                lastAccessedAt = null
             )
 
             _uiState.value = ChecklistUiState(checklist = mockChecklist)

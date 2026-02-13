@@ -1,25 +1,25 @@
 package com.pyanpyan.domain.model
 
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ChecklistTest {
 
-    private fun createTestChecklist(
-        id: String = "test",
-        name: String = "Test Checklist",
-        items: List<ChecklistItem> = emptyList()
-    ) = Checklist(
-        id = ChecklistId(id),
-        name = name,
-        schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
-        items = items,
-        color = ChecklistColor.SOFT_BLUE,
-        statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
-        lastAccessedAt = null
-    )
+fun createTestChecklist(
+    id: ChecklistId = ChecklistId("test-checklist"),
+    name: String = "Test Checklist",
+    schedule: ChecklistSchedule = ChecklistSchedule(
+        daysOfWeek = emptySet(),
+        timeRange = TimeRange.AllDay
+    ),
+    items: List<ChecklistItem> = emptyList(),
+    color: ChecklistColor = ChecklistColor.SOFT_BLUE,
+    statePersistence: StatePersistenceDuration = StatePersistenceDuration.DEFAULT,
+    lastAccessedAt: Instant? = null
+): Checklist = Checklist(id, name, schedule, items, color, statePersistence, lastAccessedAt)
 
     @Test
     fun `checklist can contain items`() {
@@ -37,7 +37,7 @@ class ChecklistTest {
         )
 
         val checklist = createTestChecklist(
-            id = "morning-routine",
+            id = ChecklistId("morning-routine"),
             name = "Morning Routine",
             items = items
         )
@@ -54,7 +54,7 @@ class ChecklistTest {
             state = ChecklistItemState.Pending
         )
         val checklist = createTestChecklist(
-            id = "morning-routine",
+            id = ChecklistId("morning-routine"),
             name = "Morning Routine",
             items = listOf(item)
         )
@@ -79,7 +79,7 @@ class ChecklistTest {
             )
         )
         val checklist = createTestChecklist(
-            id = "morning-routine",
+            id = ChecklistId("morning-routine"),
             name = "Morning Routine",
             items = items
         )

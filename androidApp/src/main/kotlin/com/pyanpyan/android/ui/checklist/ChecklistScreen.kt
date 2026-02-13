@@ -33,7 +33,7 @@ fun ChecklistScreen(
         ) {
             uiState.checklist?.let { checklist ->
                 Text(
-                    text = checklist.title,
+                    text = checklist.name,
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
