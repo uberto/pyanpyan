@@ -38,11 +38,13 @@ class ChecklistViewModel : ViewModel() {
                     ChecklistItem(
                         id = ChecklistItemId("brush-teeth"),
                         title = "Brush teeth",
+                        iconId = ItemIconId("tooth"),
                         state = ChecklistItemState.Pending
                     ),
                     ChecklistItem(
                         id = ChecklistItemId("get-dressed"),
                         title = "Get dressed",
+                        iconId = ItemIconId("shirt"),
                         state = ChecklistItemState.Pending
                     )
                 ),
