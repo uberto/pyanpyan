@@ -27,8 +27,12 @@ class IgnoreItemTodayFlowTest {
         )
         val checklist = Checklist(
             id = ChecklistId("daily-tasks"),
-            title = "Daily Tasks",
-            items = listOf(item)
+            name = "Daily Tasks",
+            schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
+            items = listOf(item),
+            color = ChecklistColor.SOFT_BLUE,
+            statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
+            lastAccessedAt = null
         )
 
         // When: User ignores the item today

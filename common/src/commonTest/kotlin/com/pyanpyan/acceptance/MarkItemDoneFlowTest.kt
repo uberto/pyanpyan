@@ -27,8 +27,12 @@ class MarkItemDoneFlowTest {
         val checklistId = ChecklistId("morning-routine")
         val checklist = Checklist(
             id = checklistId,
-            title = "Morning Routine",
-            items = listOf(item)
+            name = "Morning Routine",
+            schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
+            items = listOf(item),
+            color = ChecklistColor.SOFT_BLUE,
+            statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
+            lastAccessedAt = null
         )
 
         // When: User marks the item as done

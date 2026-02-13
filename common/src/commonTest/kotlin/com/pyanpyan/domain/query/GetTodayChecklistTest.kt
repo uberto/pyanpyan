@@ -10,8 +10,12 @@ class GetTodayChecklistTest {
     fun `query returns checklist by id`() {
         val checklist = Checklist(
             id = ChecklistId("morning"),
-            title = "Morning Routine",
-            items = emptyList()
+            name = "Morning Routine",
+            schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
+            items = emptyList(),
+            color = ChecklistColor.SOFT_BLUE,
+            statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
+            lastAccessedAt = null
         )
         val repository = FakeChecklistRepository(listOf(checklist))
 

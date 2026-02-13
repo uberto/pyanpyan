@@ -22,8 +22,12 @@ class ResetDailyStateTest {
         )
         val checklist = Checklist(
             id = ChecklistId("morning"),
-            title = "Morning Routine",
-            items = items
+            name = "Morning Routine",
+            schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
+            items = items,
+            color = ChecklistColor.SOFT_BLUE,
+            statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
+            lastAccessedAt = null
         )
 
         val command = ResetDailyState()
