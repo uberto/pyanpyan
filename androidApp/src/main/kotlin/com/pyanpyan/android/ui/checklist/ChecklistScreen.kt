@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pyanpyan.android.ui.components.ItemSlider
+import com.pyanpyan.android.ui.components.SliderState
 import com.pyanpyan.domain.model.ChecklistItem
 import com.pyanpyan.domain.model.ChecklistItemState
 
@@ -70,40 +72,79 @@ fun ChecklistItemRow(
             }
         )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.bodyLarge,
-                textDecoration = when (item.state) {
-                    ChecklistItemState.Done -> TextDecoration.LineThrough
-                    else -> null
-                },
-                color = when (item.state) {
-                    ChecklistItemState.IgnoredToday -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                    else -> MaterialTheme.colorScheme.onSurface
-                },
-                modifier = Modifier.weight(1f)
-            )
+            // Item title with optional icon
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                // Placeholder for icon (will be implemented later)
+                item.iconId?.let {
+                    Text(
+                        text = "🔹",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (item.state == ChecklistItemState.Pending) {
-                    Button(
-                        onClick = onMarkDone,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Text("Done")
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textDecoration = when (item.state) {
+                        ChecklistItemState.Done -> TextDecoration.LineThrough
+                        else -> null
+                    },
+                    color = when (item.state) {
+                        ChecklistItemState.IgnoredToday -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        else -> MaterialTheme.colorScheme.onSurface
                     }
+                )
+            }
 
-                    OutlinedButton(onClick = onIgnoreToday) {
-                        Text("Skip")
+            // Slider or status text
+            when (item.state) {
+                ChecklistItemState.Pending -> {
+                    ItemSlider(
+                        state = SliderState.Center,
+                        onSkip = onIgnoreToday,
+                        onDone = onMarkDone,
+                        enabled = true
+                    )
+                }
+                ChecklistItemState.Done -> {
+                    Column {
+                        ItemSlider(
+                            state = SliderState.Right,
+                            onSkip = {},
+                            onDone = {},
+                            enabled = false
+                        )
+                        Text(
+                            text = "✓ Completed",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+                ChecklistItemState.IgnoredToday -> {
+                    Column {
+                        ItemSlider(
+                            state = SliderState.Left,
+                            onSkip = {},
+                            onDone = {},
+                            enabled = false
+                        )
+                        Text(
+                            text = "⊘ Skipped today",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
                     }
                 }
             }
