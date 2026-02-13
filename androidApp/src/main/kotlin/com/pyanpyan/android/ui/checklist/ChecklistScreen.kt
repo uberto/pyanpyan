@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,11 +17,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pyanpyan.android.ui.components.ItemSlider
 import com.pyanpyan.android.ui.components.SliderState
+import com.pyanpyan.domain.model.ChecklistId
 import com.pyanpyan.domain.model.ChecklistItem
 import com.pyanpyan.domain.model.ChecklistItemState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChecklistScreen(
+    checklistId: ChecklistId,
+    onBackClick: () -> Unit,
     viewModel: ChecklistViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -28,27 +34,43 @@ fun ChecklistScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            uiState.checklist?.let { checklist ->
-                Text(
-                    text = checklist.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(checklist.items) { item ->
-                        ChecklistItemRow(
-                            item = item,
-                            onMarkDone = { viewModel.markItemDone(item.id) },
-                            onIgnoreToday = { viewModel.ignoreItemToday(item.id) }
+        Column(modifier = Modifier.fillMaxSize()) {
+            // TopAppBar with back button
+            TopAppBar(
+                title = { Text("Checklist") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
                         )
+                    }
+                }
+            )
+
+            // Existing content wrapped in Column
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                uiState.checklist?.let { checklist ->
+                    Text(
+                        text = checklist.name,
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(checklist.items) { item ->
+                            ChecklistItemRow(
+                                item = item,
+                                onMarkDone = { viewModel.markItemDone(item.id) },
+                                onIgnoreToday = { viewModel.ignoreItemToday(item.id) }
+                            )
+                        }
                     }
                 }
             }
