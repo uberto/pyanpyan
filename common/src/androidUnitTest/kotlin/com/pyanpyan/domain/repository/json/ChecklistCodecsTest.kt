@@ -78,4 +78,52 @@ class ChecklistCodecsTest {
 
         assertEquals(original, decoded)
     }
+
+    @Test
+    fun timerange_allday_roundtrip() {
+        val original = TimeRange.AllDay
+        val json = JTimeRange.toJson(original)
+        val decoded = JTimeRange.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun timerange_specific_roundtrip() {
+        val original = TimeRange.Specific(
+            startTime = kotlinx.datetime.LocalTime(8, 30),
+            endTime = kotlinx.datetime.LocalTime(16, 45)
+        )
+        val json = JTimeRange.toJson(original)
+        val decoded = JTimeRange.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun checklist_item_state_pending_roundtrip() {
+        val original = ChecklistItemState.Pending
+        val json = JChecklistItemState.toJson(original)
+        val decoded = JChecklistItemState.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun checklist_item_state_done_roundtrip() {
+        val original = ChecklistItemState.Done
+        val json = JChecklistItemState.toJson(original)
+        val decoded = JChecklistItemState.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun checklist_item_state_ignored_roundtrip() {
+        val original = ChecklistItemState.IgnoredToday
+        val json = JChecklistItemState.toJson(original)
+        val decoded = JChecklistItemState.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
 }
