@@ -19,16 +19,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pyanpyan.domain.model.Checklist
 import com.pyanpyan.domain.model.ChecklistId
+import com.pyanpyan.domain.repository.ChecklistRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChecklistLibraryScreen(
     onChecklistClick: (ChecklistId) -> Unit,
     onCreateClick: () -> Unit,
-    viewModel: ChecklistLibraryViewModel = viewModel()
+    onEditClick: (ChecklistId) -> Unit,
+    repository: ChecklistRepository
 ) {
+    val viewModel: ChecklistLibraryViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                ChecklistLibraryViewModel(repository)
+            }
+        }
+    )
+
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
