@@ -246,4 +246,91 @@ class ChecklistSerializationTest {
         assertTrue(jsonString.contains("\"statePersistence\""))
         assertTrue(jsonString.contains("\"lastAccessedAt\""))
     }
+
+    @Test
+    fun checklist_list_roundtrip() {
+        val checklists = listOf(
+            Checklist(
+                id = ChecklistId("first"),
+                name = "First",
+                schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
+                items = emptyList(),
+                color = ChecklistColor.SOFT_BLUE,
+                statePersistence = StatePersistenceDuration.NEVER,
+                lastAccessedAt = null
+            ),
+            Checklist(
+                id = ChecklistId("second"),
+                name = "Second",
+                schedule = ChecklistSchedule(
+                    daysOfWeek = setOf(
+                        DayOfWeek.SATURDAY,
+                        DayOfWeek.SUNDAY
+                    ),
+                    timeRange = TimeRange.Specific(
+                        startTime = LocalTime(10, 0),
+                        endTime = LocalTime(12, 0)
+                    )
+                ),
+                items = emptyList(),
+                color = ChecklistColor.WARM_PEACH,
+                statePersistence = StatePersistenceDuration.ONE_DAY,
+                lastAccessedAt = null
+            )
+        )
+
+        val jsonString = json.encodeToString(checklists)
+        val decoded = json.decodeFromString<List<Checklist>>(jsonString)
+
+        assertEquals(2, decoded.size)
+        assertEquals(checklists, decoded)
+    }
+
+    @Test
+    fun empty_checklist_list_roundtrip() {
+        val original = emptyList<Checklist>()
+        val jsonString = json.encodeToString(original)
+        val decoded = json.decodeFromString<List<Checklist>>(jsonString)
+
+        assertEquals(original, decoded)
+        // With prettyPrint, the JSON might have formatting, so just verify it starts with [ and ends with ]
+        assertTrue(jsonString.trim().startsWith("[") && jsonString.trim().endsWith("]"))
+        assertTrue(decoded.isEmpty())
+    }
+
+    @Test
+    fun json_uses_camelcase_field_names() {
+        val checklist = Checklist(
+            id = ChecklistId("test"),
+            name = "Test",
+            schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
+            items = emptyList(),
+            color = ChecklistColor.SOFT_BLUE,
+            statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
+            lastAccessedAt = Instant.parse("2024-01-01T00:00:00Z")
+        )
+
+        val jsonString = json.encodeToString(checklist)
+
+        // Verify camelCase field names
+        assertTrue(jsonString.contains("\"lastAccessedAt\""))
+        assertTrue(jsonString.contains("\"statePersistence\""))
+        // Verify NOT snake_case
+        assertTrue(!jsonString.contains("\"last_accessed_at\""))
+        assertTrue(!jsonString.contains("\"state_persistence\""))
+    }
+
+    @Test
+    fun json_uses_type_discriminator_for_sealed_classes() {
+        val timeRange = TimeRange.Specific(
+            startTime = LocalTime(8, 0),
+            endTime = LocalTime(17, 0)
+        )
+
+        val jsonString = json.encodeToString<TimeRange>(timeRange)
+
+        // Verify "type" discriminator field
+        assertTrue(jsonString.contains("\"type\""))
+        assertTrue(jsonString.contains("\"Specific\""))
+    }
 }
