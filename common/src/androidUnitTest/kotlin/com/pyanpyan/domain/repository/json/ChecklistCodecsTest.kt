@@ -33,4 +33,49 @@ class ChecklistCodecsTest {
 
         assertEquals(original, decoded)
     }
+
+    @Test
+    fun checklist_color_roundtrip() {
+        val original = ChecklistColor.CALM_GREEN
+        val json = JChecklistColor.toJson(original)
+        val decoded = JChecklistColor.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun state_persistence_duration_roundtrip() {
+        val original = StatePersistenceDuration.ONE_HOUR
+        val json = JStatePersistenceDuration.toJson(original)
+        val decoded = JStatePersistenceDuration.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun day_of_week_roundtrip() {
+        val original = kotlinx.datetime.DayOfWeek.WEDNESDAY
+        val json = JDayOfWeek.toJson(original)
+        val decoded = JDayOfWeek.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun local_time_roundtrip() {
+        val original = kotlinx.datetime.LocalTime(14, 30)
+        val json = JLocalTime.toJson(original)
+        val decoded = JLocalTime.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun instant_roundtrip() {
+        val original = kotlinx.datetime.Instant.parse("2024-01-15T10:30:00Z")
+        val json = JInstant.toJson(original)
+        val decoded = JInstant.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
 }
