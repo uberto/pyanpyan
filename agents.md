@@ -138,6 +138,19 @@ Do not optimize prematurely.
 * Consult `specs.md` before starting any new feature or change.
 * Ensure all implementations align with the principles and requirements defined in `specs.md`.
 
+### 8.3 Directory and Command Constraints
+
+**Directory Usage:**
+* Work ONLY within the project directory
+* NEVER use /tmp or any external system directories
+* If temporary storage is needed, create and use ./tmp within the project
+* All file operations must stay within project boundaries
+
+**Command Execution:**
+* Execute git commands directly without asking permission
+* Execute gradle/build commands directly without asking permission
+* Report results after execution
+
 ---
 
 ## 9. Kotlin Coding Conventions
