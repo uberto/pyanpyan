@@ -27,7 +27,17 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                // Kondor JSON and Outcome (JVM-only)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+            }
+        }
+        val androidUnitTest by getting {
+            dependencies {
+                implementation("com.ubertob.kondor:kondor-core:3.6.1")
+                implementation("com.ubertob.kondor:kondor-outcome:3.6.1")
+            }
+        }
+        val androidInstrumentedTest by getting {
+            dependencies {
                 implementation("com.ubertob.kondor:kondor-core:3.6.1")
                 implementation("com.ubertob.kondor:kondor-outcome:3.6.1")
             }
@@ -46,5 +56,11 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    packaging {
+        resources.excludes.addAll(listOf(
+            "META-INF/**"
+        ))
     }
 }
