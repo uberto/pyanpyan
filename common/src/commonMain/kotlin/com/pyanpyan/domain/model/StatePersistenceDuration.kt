@@ -1,5 +1,8 @@
 package com.pyanpyan.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class StatePersistenceDuration(
     val milliseconds: Long?,
     val displayName: String

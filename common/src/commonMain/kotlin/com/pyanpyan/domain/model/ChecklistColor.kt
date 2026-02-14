@@ -1,5 +1,8 @@
 package com.pyanpyan.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class ChecklistColor(val hex: String, val displayName: String) {
     SOFT_BLUE("#A8D5E2", "Soft Blue"),
     CALM_GREEN("#C8E6C9", "Calm Green"),
