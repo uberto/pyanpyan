@@ -1,11 +1,18 @@
 package com.pyanpyan.domain.model
 
+import com.pyanpyan.domain.repository.json.ChecklistItemIdSerializer
+import com.pyanpyan.domain.repository.json.ItemIconIdSerializer
+import kotlinx.serialization.Serializable
+
 @JvmInline
+@Serializable(with = ChecklistItemIdSerializer::class)
 value class ChecklistItemId(val value: String)
 
 @JvmInline
+@Serializable(with = ItemIconIdSerializer::class)
 value class ItemIconId(val value: String)
 
+@Serializable
 data class ChecklistItem(
     val id: ChecklistItemId,
     val title: String,
