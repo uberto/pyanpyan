@@ -206,39 +206,37 @@ object ChecklistIdSerializer : KSerializer<ChecklistId> {
 
 ### 9.3 Error Handling
 
-* Use **kondor-outcome** for error handling (Outcome/Either types).
+* Use **RepositoryResult** for repository error handling.
 * Prefer functional combinators over imperative error handling.
-* Use `Outcome.tryThis` to wrap exception-throwing code.
 
 **Good:**
 ```kotlin
-fun loadData(): Outcome<Error, Data> =
-    Outcome.tryThis { file.readText() }
-        .bind { json -> parseJson(json) }
+fun loadData(): RepositoryResult<Data> =
+    repository.getData()
         .map { data -> transformData(data) }
-        .transformFailure { e -> Error.FileReadError(e.message) }
+        .onFailure { error -> log(error) }
 ```
 
 **Avoid:**
 ```kotlin
 fun loadData(): Data {
     try {
-        val text = file.readText()
-        val json = parseJson(text)
-        return transformData(json)
+        val data = repository.getData()
+        return transformData(data)
     } catch (e: Exception) {
-        throw Error.FileReadError(e.message)
+        throw Error.DataLoadError(e.message)
     }
 }
 ```
 
 **Use these combinators:**
 * `map` - transform success value
-* `bind` - chain operations that return Outcome
-* `transform` - handle both success and failure
-* `transformFailure` - map error types
+* `flatMap` - chain operations that return RepositoryResult
+* `onSuccess` - side effect on success
 * `onFailure` - side effect on failure
-* `orThrow()` - only in tests or when failure is impossible
+* `getOrNull()` - extract value or null
+* `isSuccess()` - check if result is success
+* `isFailure()` - check if result is failure
 
 ---
 
