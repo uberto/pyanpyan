@@ -269,16 +269,15 @@ if (file.exists()) {
 
 ### 10.1 Mandatory Libraries
 
-* **kondor-json** - JSON serialization (https://github.com/uberto/kondor-json)
-* **kondor-outcome** - Error handling with Outcome/Either types
+* **kotlinx-serialization-json** - JSON serialization (https://github.com/Kotlin/kotlinx.serialization)
 * **kotlinx-datetime** - Date/time handling (multiplatform)
 * **kotlinx-coroutines** - Async/concurrency
 
 ### 10.2 Prohibited Libraries
 
 Do not use without explicit approval:
-* kotlinx.serialization (use kondor-json instead)
-* Gson, Moshi, Jackson (use kondor-json instead)
+* kondor-json, kondor-outcome (causes Android DEX conflicts, use kotlinx-serialization and RepositoryResult instead)
+* Gson, Moshi, Jackson (use kotlinx-serialization instead)
 * Java Date/Time APIs (use kotlinx-datetime instead)
 
 ---
