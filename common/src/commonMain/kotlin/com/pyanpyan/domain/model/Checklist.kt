@@ -1,10 +1,14 @@
 package com.pyanpyan.domain.model
 
+import com.pyanpyan.domain.repository.json.ChecklistIdSerializer
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
 @JvmInline
+@Serializable(with = ChecklistIdSerializer::class)
 value class ChecklistId(val value: String)
 
+@Serializable
 data class Checklist(
     val id: ChecklistId,
     val name: String,
