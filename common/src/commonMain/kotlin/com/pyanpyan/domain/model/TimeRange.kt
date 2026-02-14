@@ -1,17 +1,23 @@
-// common/src/commonMain/kotlin/com/pyanpyan/domain/model/TimeRange.kt
 package com.pyanpyan.domain.model
 
 import kotlinx.datetime.LocalTime
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class TimeRange {
     abstract val isAllDay: Boolean
     abstract fun contains(time: LocalTime): Boolean
 
-    object AllDay : TimeRange() {
+    @Serializable
+    @SerialName("AllDay")
+    data object AllDay : TimeRange() {
         override val isAllDay: Boolean = true
         override fun contains(time: LocalTime): Boolean = true
     }
 
+    @Serializable
+    @SerialName("Specific")
     data class Specific(
         val startTime: LocalTime,
         val endTime: LocalTime
