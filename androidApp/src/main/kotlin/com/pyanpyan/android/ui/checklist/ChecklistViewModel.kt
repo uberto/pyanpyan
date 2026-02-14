@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyanpyan.domain.command.IgnoreItemToday
 import com.pyanpyan.domain.command.MarkItemDone
 import com.pyanpyan.domain.model.*
+import com.pyanpyan.domain.repository.ChecklistRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +16,10 @@ data class ChecklistUiState(
     val isLoading: Boolean = false
 )
 
-class ChecklistViewModel : ViewModel() {
+class ChecklistViewModel(
+    private val checklistId: ChecklistId,
+    private val repository: ChecklistRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChecklistUiState())
     val uiState: StateFlow<ChecklistUiState> = _uiState.asStateFlow()
@@ -26,34 +30,19 @@ class ChecklistViewModel : ViewModel() {
 
     private fun loadChecklist() {
         viewModelScope.launch {
-            // Temporary mock data - will be replaced with repository
-            val mockChecklist = Checklist(
-                id = ChecklistId("morning-routine"),
-                name = "Morning Routine",
-                schedule = ChecklistSchedule(
-                    daysOfWeek = emptySet(),
-                    timeRange = TimeRange.AllDay
-                ),
-                items = listOf(
-                    ChecklistItem(
-                        id = ChecklistItemId("brush-teeth"),
-                        title = "Brush teeth",
-                        iconId = ItemIconId("tooth"),
-                        state = ChecklistItemState.Pending
-                    ),
-                    ChecklistItem(
-                        id = ChecklistItemId("get-dressed"),
-                        title = "Get dressed",
-                        iconId = ItemIconId("shirt"),
-                        state = ChecklistItemState.Pending
-                    )
-                ),
-                color = ChecklistColor.SOFT_BLUE,
-                statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
-                lastAccessedAt = null
-            )
+            _uiState.value = _uiState.value.copy(isLoading = true)
 
-            _uiState.value = ChecklistUiState(checklist = mockChecklist)
+            repository.getChecklist(checklistId)
+                .onSuccess { checklist ->
+                    _uiState.value = ChecklistUiState(
+                        checklist = checklist,
+                        isLoading = false
+                    )
+                }
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    // Error will be shown via SnackBar in UI
+                }
         }
     }
 
@@ -65,7 +54,17 @@ class ChecklistViewModel : ViewModel() {
         val updatedItem = command.execute(item)
         val updatedChecklist = currentChecklist.updateItem(updatedItem)
 
+        // Optimistically update UI
         _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
+
+        // Persist to repository
+        viewModelScope.launch {
+            repository.saveChecklist(updatedChecklist)
+                .onFailure { error ->
+                    // Revert UI on failure
+                    loadChecklist()
+                }
+        }
     }
 
     fun ignoreItemToday(itemId: ChecklistItemId) {
@@ -76,6 +75,16 @@ class ChecklistViewModel : ViewModel() {
         val updatedItem = command.execute(item)
         val updatedChecklist = currentChecklist.updateItem(updatedItem)
 
+        // Optimistically update UI
         _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
+
+        // Persist to repository
+        viewModelScope.launch {
+            repository.saveChecklist(updatedChecklist)
+                .onFailure { error ->
+                    // Revert UI on failure
+                    loadChecklist()
+                }
+        }
     }
 }
