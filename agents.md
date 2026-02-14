@@ -174,24 +174,32 @@ fun deleteChecklist(id: ChecklistId) {
 
 ### 9.2 JSON Serialization
 
-* Use **kondor-json** for all JSON serialization.
-* Define explicit codec objects (no reflection, no annotations).
-* Use snake_case for JSON field names.
+* Use **kotlinx-serialization** for all JSON serialization.
+* Use @Serializable annotations on data classes and sealed classes.
+* Use custom serializers for value classes (kotlinx-serialization doesn't handle @JvmInline automatically).
+* JSON field names use camelCase (Kotlin property names).
 
 **Required approach:**
 ```kotlin
-object JChecklist : JAny<Checklist>() {
-    val id by str(JChecklistId, Checklist::id)
-    val name by str(Checklist::name)
-    val state_persistence by str(JStatePersistenceDuration, Checklist::statePersistence)
+@Serializable
+data class Checklist(
+    @Serializable(with = ChecklistIdSerializer::class)
+    val id: ChecklistId,
+    val name: String,
+    val statePersistence: StatePersistenceDuration
+)
 
-    override fun JsonNodeObject.deserializeOrThrow() =
-        Checklist(id = +id, name = +name, statePersistence = +state_persistence)
+// Custom serializer for value class
+object ChecklistIdSerializer : KSerializer<ChecklistId> {
+    override val descriptor = PrimitiveSerialDescriptor("ChecklistId", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: ChecklistId) {
+        encoder.encodeString(value.value)
+    }
+    override fun deserialize(decoder: Decoder) = ChecklistId(decoder.decodeString())
 }
 ```
 
 **Do not use:**
-* kotlinx.serialization with @Serializable annotations
 * Gson or Moshi reflection-based serialization
 
 ---
