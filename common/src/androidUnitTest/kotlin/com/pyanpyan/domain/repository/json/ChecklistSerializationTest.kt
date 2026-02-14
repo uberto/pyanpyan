@@ -95,4 +95,62 @@ class ChecklistSerializationTest {
 
         assertEquals(original, decoded)
     }
+
+    @Test
+    fun timerange_allday_roundtrip() {
+        val original = TimeRange.AllDay
+        val jsonString = json.encodeToString<TimeRange>(original)
+        val decoded = json.decodeFromString<TimeRange>(jsonString)
+
+        assertEquals(original, decoded)
+        assertTrue(jsonString.contains("\"type\""))
+        assertTrue(jsonString.contains("\"AllDay\""))
+    }
+
+    @Test
+    fun timerange_specific_roundtrip() {
+        val original = TimeRange.Specific(
+            startTime = LocalTime(8, 30),
+            endTime = LocalTime(16, 45)
+        )
+        val jsonString = json.encodeToString<TimeRange>(original)
+        val decoded = json.decodeFromString<TimeRange>(jsonString)
+
+        assertEquals(original, decoded)
+        assertTrue(jsonString.contains("\"type\""))
+        assertTrue(jsonString.contains("\"Specific\""))
+        assertTrue(jsonString.contains("\"startTime\""))
+        assertTrue(jsonString.contains("\"endTime\""))
+    }
+
+    @Test
+    fun checklist_item_state_pending_roundtrip() {
+        val original = ChecklistItemState.Pending
+        val jsonString = json.encodeToString<ChecklistItemState>(original)
+        val decoded = json.decodeFromString<ChecklistItemState>(jsonString)
+
+        assertEquals(original, decoded)
+        assertTrue(jsonString.contains("\"type\""))
+        assertTrue(jsonString.contains("\"Pending\""))
+    }
+
+    @Test
+    fun checklist_item_state_done_roundtrip() {
+        val original = ChecklistItemState.Done
+        val jsonString = json.encodeToString<ChecklistItemState>(original)
+        val decoded = json.decodeFromString<ChecklistItemState>(jsonString)
+
+        assertEquals(original, decoded)
+        assertTrue(jsonString.contains("\"Done\""))
+    }
+
+    @Test
+    fun checklist_item_state_ignored_roundtrip() {
+        val original = ChecklistItemState.IgnoredToday
+        val jsonString = json.encodeToString<ChecklistItemState>(original)
+        val decoded = json.decodeFromString<ChecklistItemState>(jsonString)
+
+        assertEquals(original, decoded)
+        assertTrue(jsonString.contains("\"IgnoredToday\""))
+    }
 }
