@@ -153,4 +153,97 @@ class ChecklistSerializationTest {
         assertEquals(original, decoded)
         assertTrue(jsonString.contains("\"IgnoredToday\""))
     }
+
+    @Test
+    fun checklist_schedule_roundtrip() {
+        val original = ChecklistSchedule(
+            daysOfWeek = setOf(
+                DayOfWeek.MONDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.FRIDAY
+            ),
+            timeRange = TimeRange.Specific(
+                startTime = LocalTime(6, 0),
+                endTime = LocalTime(9, 0)
+            )
+        )
+
+        val jsonString = json.encodeToString(original)
+        val decoded = json.decodeFromString<ChecklistSchedule>(jsonString)
+
+        assertEquals(original, decoded)
+        assertTrue(jsonString.contains("\"daysOfWeek\""))
+        assertTrue(jsonString.contains("\"timeRange\""))
+    }
+
+    @Test
+    fun checklist_item_roundtrip() {
+        val original = ChecklistItem(
+            id = ChecklistItemId("test-item"),
+            title = "Test Item",
+            iconId = ItemIconId("icon-1"),
+            state = ChecklistItemState.Done
+        )
+
+        val jsonString = json.encodeToString(original)
+        val decoded = json.decodeFromString<ChecklistItem>(jsonString)
+
+        assertEquals(original, decoded)
+        assertTrue(jsonString.contains("\"id\""))
+        assertTrue(jsonString.contains("\"title\""))
+        assertTrue(jsonString.contains("\"iconId\""))
+        assertTrue(jsonString.contains("\"state\""))
+    }
+
+    @Test
+    fun checklist_item_with_null_icon_roundtrip() {
+        val original = ChecklistItem(
+            id = ChecklistItemId("test"),
+            title = "Item",
+            iconId = null,
+            state = ChecklistItemState.Pending
+        )
+
+        val jsonString = json.encodeToString(original)
+        val decoded = json.decodeFromString<ChecklistItem>(jsonString)
+
+        assertEquals(original, decoded)
+        // kotlinx.serialization includes null by default
+        assertTrue(jsonString.contains("\"iconId\""))
+    }
+
+    @Test
+    fun checklist_roundtrip() {
+        val original = Checklist(
+            id = ChecklistId("test-id"),
+            name = "Test Checklist",
+            schedule = ChecklistSchedule(
+                daysOfWeek = setOf(DayOfWeek.MONDAY),
+                timeRange = TimeRange.AllDay
+            ),
+            items = listOf(
+                ChecklistItem(
+                    id = ChecklistItemId("item-1"),
+                    title = "First Item",
+                    iconId = ItemIconId("icon-1"),
+                    state = ChecklistItemState.Done
+                )
+            ),
+            color = ChecklistColor.CALM_GREEN,
+            statePersistence = StatePersistenceDuration.ONE_HOUR,
+            lastAccessedAt = Instant.parse("2024-01-15T10:30:00Z")
+        )
+
+        val jsonString = json.encodeToString(original)
+        val decoded = json.decodeFromString<Checklist>(jsonString)
+
+        assertEquals(original, decoded)
+        assertTrue(jsonString.contains("\"id\""))
+        assertTrue(jsonString.contains("\"name\""))
+        assertTrue(jsonString.contains("\"schedule\""))
+        assertTrue(jsonString.contains("\"items\""))
+        assertTrue(jsonString.contains("\"color\""))
+        assertTrue(jsonString.contains("\"statePersistence\""))
+        assertTrue(jsonString.contains("\"lastAccessedAt\""))
+    }
 }
