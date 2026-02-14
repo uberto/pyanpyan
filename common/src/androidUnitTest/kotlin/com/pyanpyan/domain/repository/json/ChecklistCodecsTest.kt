@@ -204,4 +204,73 @@ class ChecklistCodecsTest {
 
         assertEquals(original, decoded)
     }
+
+    @Test
+    fun checklist_list_roundtrip() {
+        val checklists = listOf(
+            Checklist(
+                id = ChecklistId("first"),
+                name = "First",
+                schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
+                items = emptyList(),
+                color = ChecklistColor.SOFT_BLUE,
+                statePersistence = StatePersistenceDuration.NEVER,
+                lastAccessedAt = null
+            ),
+            Checklist(
+                id = ChecklistId("second"),
+                name = "Second",
+                schedule = ChecklistSchedule(
+                    daysOfWeek = setOf(
+                        kotlinx.datetime.DayOfWeek.SATURDAY,
+                        kotlinx.datetime.DayOfWeek.SUNDAY
+                    ),
+                    timeRange = TimeRange.Specific(
+                        startTime = kotlinx.datetime.LocalTime(10, 0),
+                        endTime = kotlinx.datetime.LocalTime(12, 0)
+                    )
+                ),
+                items = emptyList(),
+                color = ChecklistColor.WARM_PEACH,
+                statePersistence = StatePersistenceDuration.ONE_DAY,
+                lastAccessedAt = null
+            )
+        )
+
+        val json = JChecklistData.toJson(checklists)
+        val decoded = JChecklistData.fromJson(json).orThrow()
+
+        assertEquals(2, decoded.size)
+        assertEquals(checklists, decoded)
+    }
+
+    @Test
+    fun empty_checklist_list_roundtrip() {
+        val original = emptyList<Checklist>()
+        val json = JChecklistData.toJson(original)
+        val decoded = JChecklistData.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun json_uses_snake_case_field_names() {
+        val checklist = Checklist(
+            id = ChecklistId("test"),
+            name = "Test",
+            schedule = ChecklistSchedule(emptySet(), TimeRange.AllDay),
+            items = emptyList(),
+            color = ChecklistColor.SOFT_BLUE,
+            statePersistence = StatePersistenceDuration.FIFTEEN_MINUTES,
+            lastAccessedAt = kotlinx.datetime.Instant.parse("2024-01-01T00:00:00Z")
+        )
+
+        val json = JChecklist.toJson(checklist)
+
+        // Verify snake_case field names
+        assert(json.contains("\"state_persistence\""))
+        assert(json.contains("\"last_accessed_at\""))
+        assert(!json.contains("\"statePersistence\""))
+        assert(!json.contains("\"lastAccessedAt\""))
+    }
 }

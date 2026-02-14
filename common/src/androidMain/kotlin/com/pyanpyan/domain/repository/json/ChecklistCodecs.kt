@@ -149,3 +149,6 @@ object JChecklist : JAny<Checklist>() {
             lastAccessedAt = +last_accessed_at
         )
 }
+
+// Root codec for the file - top-level array of checklists
+val JChecklistData = JList(JChecklist)
