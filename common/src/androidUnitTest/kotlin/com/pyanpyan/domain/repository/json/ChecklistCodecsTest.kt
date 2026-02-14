@@ -126,4 +126,82 @@ class ChecklistCodecsTest {
 
         assertEquals(original, decoded)
     }
+
+    @Test
+    fun checklist_schedule_roundtrip() {
+        val original = ChecklistSchedule(
+            daysOfWeek = setOf(
+                kotlinx.datetime.DayOfWeek.MONDAY,
+                kotlinx.datetime.DayOfWeek.WEDNESDAY,
+                kotlinx.datetime.DayOfWeek.FRIDAY
+            ),
+            timeRange = TimeRange.Specific(
+                startTime = kotlinx.datetime.LocalTime(6, 0),
+                endTime = kotlinx.datetime.LocalTime(9, 0)
+            )
+        )
+
+        val json = JChecklistSchedule.toJson(original)
+        val decoded = JChecklistSchedule.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun checklist_item_roundtrip() {
+        val original = ChecklistItem(
+            id = ChecklistItemId("test-item"),
+            title = "Test Item",
+            iconId = ItemIconId("icon-1"),
+            state = ChecklistItemState.Done
+        )
+
+        val json = JChecklistItem.toJson(original)
+        val decoded = JChecklistItem.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun checklist_item_with_null_icon_roundtrip() {
+        val original = ChecklistItem(
+            id = ChecklistItemId("test"),
+            title = "Item",
+            iconId = null,
+            state = ChecklistItemState.Pending
+        )
+
+        val json = JChecklistItem.toJson(original)
+        val decoded = JChecklistItem.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun checklist_roundtrip() {
+        val original = Checklist(
+            id = ChecklistId("test-id"),
+            name = "Test Checklist",
+            schedule = ChecklistSchedule(
+                daysOfWeek = setOf(kotlinx.datetime.DayOfWeek.MONDAY),
+                timeRange = TimeRange.AllDay
+            ),
+            items = listOf(
+                ChecklistItem(
+                    id = ChecklistItemId("item-1"),
+                    title = "First Item",
+                    iconId = ItemIconId("icon-1"),
+                    state = ChecklistItemState.Done
+                )
+            ),
+            color = ChecklistColor.CALM_GREEN,
+            statePersistence = StatePersistenceDuration.ONE_HOUR,
+            lastAccessedAt = kotlinx.datetime.Instant.parse("2024-01-15T10:30:00Z")
+        )
+
+        val json = JChecklist.toJson(original)
+        val decoded = JChecklist.fromJson(json).orThrow()
+
+        assertEquals(original, decoded)
+    }
 }

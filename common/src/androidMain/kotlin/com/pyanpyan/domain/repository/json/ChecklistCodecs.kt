@@ -99,3 +99,53 @@ object JDone : JAny<ChecklistItemState.Done>() {
 object JIgnoredToday : JAny<ChecklistItemState.IgnoredToday>() {
     override fun JsonNodeObject.deserializeOrThrow() = ChecklistItemState.IgnoredToday
 }
+
+// ChecklistSchedule
+object JChecklistSchedule : JAny<ChecklistSchedule>() {
+    val days_of_week by array(JDayOfWeek, ChecklistSchedule::daysOfWeek)
+    val time_range by obj(JTimeRange, ChecklistSchedule::timeRange)
+
+    override fun JsonNodeObject.deserializeOrThrow() =
+        ChecklistSchedule(
+            daysOfWeek = (+days_of_week).toSet(),
+            timeRange = +time_range
+        )
+}
+
+// ChecklistItem
+object JChecklistItem : JAny<ChecklistItem>() {
+    val id by str(JChecklistItemId, ChecklistItem::id)
+    val title by str(ChecklistItem::title)
+    val icon_id by str(JItemIconId, ChecklistItem::iconId)
+    val state by obj(JChecklistItemState, ChecklistItem::state)
+
+    override fun JsonNodeObject.deserializeOrThrow() =
+        ChecklistItem(
+            id = +id,
+            title = +title,
+            iconId = +icon_id,
+            state = +state
+        )
+}
+
+// Checklist
+object JChecklist : JAny<Checklist>() {
+    val id by str(JChecklistId, Checklist::id)
+    val name by str(Checklist::name)
+    val schedule by obj(JChecklistSchedule, Checklist::schedule)
+    val items by array(JChecklistItem, Checklist::items)
+    val color by str(JChecklistColor, Checklist::color)
+    val state_persistence by str(JStatePersistenceDuration, Checklist::statePersistence)
+    val last_accessed_at by str(JInstant, Checklist::lastAccessedAt)
+
+    override fun JsonNodeObject.deserializeOrThrow() =
+        Checklist(
+            id = +id,
+            name = +name,
+            schedule = +schedule,
+            items = +items,
+            color = +color,
+            statePersistence = +state_persistence,
+            lastAccessedAt = +last_accessed_at
+        )
+}
