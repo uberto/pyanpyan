@@ -32,14 +32,10 @@ kotlin {
         }
         val androidUnitTest by getting {
             dependencies {
-                implementation("com.ubertob.kondor:kondor-core:3.6.1")
-                implementation("com.ubertob.kondor:kondor-outcome:3.6.1")
             }
         }
         val androidInstrumentedTest by getting {
             dependencies {
-                implementation("com.ubertob.kondor:kondor-core:3.6.1")
-                implementation("com.ubertob.kondor:kondor-outcome:3.6.1")
             }
         }
     }
