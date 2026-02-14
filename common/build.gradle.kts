@@ -18,15 +18,18 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
-
-                // Kondor JSON and Outcome
-                implementation("com.ubertob.kondor:kondor-core:3.6.1")
-                implementation("com.ubertob.kondor:kondor-outcome:3.6.1")
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                // Kondor JSON and Outcome (JVM-only)
+                implementation("com.ubertob.kondor:kondor-core:3.6.1")
+                implementation("com.ubertob.kondor:kondor-outcome:3.6.1")
             }
         }
     }

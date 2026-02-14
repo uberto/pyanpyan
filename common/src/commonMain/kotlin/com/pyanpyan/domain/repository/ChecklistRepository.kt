@@ -2,38 +2,49 @@ package com.pyanpyan.domain.repository
 
 import com.pyanpyan.domain.model.Checklist
 import com.pyanpyan.domain.model.ChecklistId
-import com.uberto.kondor.outcome.Outcome
 
+/**
+ * Repository interface for managing checklists with functional error handling.
+ * All operations return RepositoryResult to handle errors in a type-safe way.
+ */
 interface ChecklistRepository {
     /**
-     * Get all checklists. Returns empty list if no data exists (first run).
-     * Returns failure only on actual I/O errors.
+     * Retrieves all checklists from storage.
+     * @return Success with list of checklists, or Failure with error details
      */
-    suspend fun getAllChecklists(): Outcome<RepositoryError, List<Checklist>>
+    suspend fun getAllChecklists(): RepositoryResult<List<Checklist>>
 
     /**
-     * Get a specific checklist by ID.
-     * Returns null if not found (wrapped in Success).
+     * Retrieves a specific checklist by ID.
+     * @param id The checklist identifier
+     * @return Success with checklist if found (or null), or Failure with error details
      */
-    suspend fun getChecklist(id: ChecklistId): Outcome<RepositoryError, Checklist?>
+    suspend fun getChecklist(id: ChecklistId): RepositoryResult<Checklist?>
 
     /**
-     * Save or update a checklist. Creates if new, updates if exists.
+     * Saves a checklist to storage (creates or updates).
+     * @param checklist The checklist to save
+     * @return Success if saved, or Failure with error details
      */
-    suspend fun saveChecklist(checklist: Checklist): Outcome<RepositoryError, Unit>
+    suspend fun saveChecklist(checklist: Checklist): RepositoryResult<Unit>
 
     /**
-     * Delete a checklist by ID. Succeeds even if checklist doesn't exist.
+     * Deletes a checklist from storage.
+     * @param id The checklist identifier to delete
+     * @return Success if deleted, or Failure with error details
      */
-    suspend fun deleteChecklist(id: ChecklistId): Outcome<RepositoryError, Unit>
+    suspend fun deleteChecklist(id: ChecklistId): RepositoryResult<Unit>
 
     /**
-     * Export all data as JSON string for backup.
+     * Exports all checklists to JSON format.
+     * @return Success with JSON string, or Failure with error details
      */
-    suspend fun exportToJson(): Outcome<RepositoryError, String>
+    suspend fun exportToJson(): RepositoryResult<String>
 
     /**
-     * Import data from JSON string, replacing all existing data.
+     * Imports checklists from JSON format, replacing existing data.
+     * @param json The JSON string containing checklists
+     * @return Success if imported, or Failure with error details
      */
-    suspend fun importFromJson(json: String): Outcome<RepositoryError, Unit>
+    suspend fun importFromJson(json: String): RepositoryResult<Unit>
 }
