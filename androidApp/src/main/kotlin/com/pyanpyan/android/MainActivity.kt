@@ -12,6 +12,7 @@ import com.pyanpyan.android.ui.checklist.ChecklistScreen
 import com.pyanpyan.android.ui.library.ChecklistLibraryScreen
 import com.pyanpyan.android.ui.theme.PyanpyanTheme
 import com.pyanpyan.domain.model.ChecklistId
+import androidx.compose.material3.Text
 
 sealed class Screen {
     object Library : Screen()
@@ -51,6 +52,10 @@ class MainActivity : ComponentActivity() {
                                 },
                                 repository = repository
                             )
+                        }
+                        is Screen.CreateEdit -> {
+                            // TODO: Implement CreateEditScreen in next tasks
+                            Text("Create/Edit Screen - TODO")
                         }
                     }
                 }
