@@ -15,19 +15,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pyanpyan.android.ui.components.ItemSlider
 import com.pyanpyan.android.ui.components.SliderState
 import com.pyanpyan.domain.model.ChecklistId
 import com.pyanpyan.domain.model.ChecklistItem
 import com.pyanpyan.domain.model.ChecklistItemState
+import com.pyanpyan.domain.repository.ChecklistRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChecklistScreen(
     checklistId: ChecklistId,
     onBackClick: () -> Unit,
-    viewModel: ChecklistViewModel = viewModel()
+    repository: ChecklistRepository
 ) {
+    val viewModel: ChecklistViewModel = viewModel(
+        key = checklistId.value,
+        factory = viewModelFactory {
+            initializer {
+                ChecklistViewModel(checklistId, repository)
+            }
+        }
+    )
+
     val uiState by viewModel.uiState.collectAsState()
 
     Surface(
