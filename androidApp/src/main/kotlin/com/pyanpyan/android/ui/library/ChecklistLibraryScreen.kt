@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,6 +49,7 @@ fun ChecklistLibraryScreen(
     )
 
     val uiState by viewModel.uiState.collectAsState()
+    var checklistToDelete by remember { mutableStateOf<Checklist?>(null) }
 
     Scaffold(
         topBar = {
@@ -82,7 +85,7 @@ fun ChecklistLibraryScreen(
                         isActive = true,
                         onClick = { onChecklistClick(checklist.id) },
                         onEdit = { onEditClick(checklist.id) },
-                        onDelete = { /* TODO: Handle delete */ }
+                        onDelete = { checklistToDelete = checklist }
                     )
                 }
             }
@@ -105,7 +108,7 @@ fun ChecklistLibraryScreen(
                         isActive = false,
                         onClick = { onChecklistClick(checklist.id) },
                         onEdit = { onEditClick(checklist.id) },
-                        onDelete = { /* TODO: Handle delete */ }
+                        onDelete = { checklistToDelete = checklist }
                     )
                 }
             }
@@ -127,6 +130,18 @@ fun ChecklistLibraryScreen(
                     }
                 }
             }
+        }
+
+        // Delete confirmation dialog
+        checklistToDelete?.let { checklist ->
+            DeleteConfirmationDialog(
+                checklistName = checklist.name,
+                onConfirm = {
+                    viewModel.deleteChecklist(checklist.id)
+                    checklistToDelete = null
+                },
+                onDismiss = { checklistToDelete = null }
+            )
         }
     }
 }
@@ -257,4 +272,29 @@ private fun getScheduleDescription(checklist: Checklist): String {
             append("Inactive")
         }
     }
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    checklistName: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete Checklist?") },
+        text = {
+            Text("Are you sure you want to delete \"$checklistName\"? This cannot be undone.")
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Delete", color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
