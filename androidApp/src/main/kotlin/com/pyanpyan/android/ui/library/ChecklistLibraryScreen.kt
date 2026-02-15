@@ -1,7 +1,9 @@
 package com.pyanpyan.android.ui.library
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +14,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,7 +80,9 @@ fun ChecklistLibraryScreen(
                     ChecklistCard(
                         checklist = checklist,
                         isActive = true,
-                        onClick = { onChecklistClick(checklist.id) }
+                        onClick = { onChecklistClick(checklist.id) },
+                        onEdit = { onEditClick(checklist.id) },
+                        onDelete = { /* TODO: Handle delete */ }
                     )
                 }
             }
@@ -96,7 +103,9 @@ fun ChecklistLibraryScreen(
                     ChecklistCard(
                         checklist = checklist,
                         isActive = false,
-                        onClick = { onChecklistClick(checklist.id) }
+                        onClick = { onChecklistClick(checklist.id) },
+                        onEdit = { onEditClick(checklist.id) },
+                        onDelete = { /* TODO: Handle delete */ }
                     )
                 }
             }
@@ -122,17 +131,24 @@ fun ChecklistLibraryScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChecklistCard(
     checklist: Checklist,
     isActive: Boolean,
     onClick: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showMenu by remember { mutableStateOf(false) }
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = { showMenu = true }
+            ),
         colors = CardDefaults.cardColors(
             containerColor = if (isActive) {
                 MaterialTheme.colorScheme.surface
@@ -186,6 +202,27 @@ fun ChecklistCard(
                         MaterialTheme.colorScheme.onSurfaceVariant
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    }
+                )
+            }
+
+            // Dropdown menu for long-press
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Edit") },
+                    onClick = {
+                        showMenu = false
+                        onEdit()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Delete") },
+                    onClick = {
+                        showMenu = false
+                        onDelete()
                     }
                 )
             }
