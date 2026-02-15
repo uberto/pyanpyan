@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.pyanpyan.android.data.RepositoryFactory
 import com.pyanpyan.android.ui.checklist.ChecklistScreen
+import com.pyanpyan.android.ui.createedit.CreateEditScreen
 import com.pyanpyan.android.ui.library.ChecklistLibraryScreen
 import com.pyanpyan.android.ui.theme.PyanpyanTheme
 import com.pyanpyan.domain.model.ChecklistId
@@ -54,8 +55,16 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         is Screen.CreateEdit -> {
-                            // TODO: Implement CreateEditScreen in next tasks
-                            Text("Create/Edit Screen - TODO")
+                            CreateEditScreen(
+                                checklistId = screen.checklistId,
+                                onSave = {
+                                    currentScreen = Screen.Library
+                                },
+                                onCancel = {
+                                    currentScreen = Screen.Library
+                                },
+                                repository = repository
+                            )
                         }
                     }
                 }
