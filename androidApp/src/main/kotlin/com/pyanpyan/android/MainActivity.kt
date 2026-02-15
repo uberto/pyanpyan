@@ -16,6 +16,7 @@ import com.pyanpyan.domain.model.ChecklistId
 sealed class Screen {
     object Library : Screen()
     data class ChecklistDetail(val checklistId: ChecklistId) : Screen()
+    data class CreateEdit(val checklistId: ChecklistId? = null) : Screen()
 }
 
 class MainActivity : ComponentActivity() {
