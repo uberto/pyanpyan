@@ -37,17 +37,23 @@ fun ItemSlider(
     // Offset state
     val offsetX = remember { Animatable(0f) }
 
+    // Maximum offset to keep thumb inside track (thumb size is 32dp)
+    val thumbSize = with(density) { 32.dp.toPx() }
+    val maxOffset = (trackWidth - thumbSize) / 2
+
     // Initial position based on state
-    LaunchedEffect(state) {
-        val target = when (state) {
-            SliderState.Center -> 0f
-            SliderState.Left -> -trackWidth / 2
-            SliderState.Right -> trackWidth / 2
+    LaunchedEffect(state, trackWidth) {
+        if (trackWidth > 0) {
+            val target = when (state) {
+                SliderState.Center -> 0f
+                SliderState.Left -> -maxOffset
+                SliderState.Right -> maxOffset
+            }
+            offsetX.snapTo(target)
         }
-        offsetX.snapTo(target)
     }
 
-    // Drag threshold (70%)
+    // Drag threshold (35%)
     val threshold = trackWidth * 0.35f
 
     Box(
@@ -56,8 +62,8 @@ fun ItemSlider(
             .height(40.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .pointerInput(enabled) {
-                if (!enabled) return@pointerInput
+            .pointerInput(enabled, maxOffset) {
+                if (!enabled || maxOffset <= 0) return@pointerInput
 
                 detectHorizontalDragGestures(
                     onDragEnd = {
@@ -68,7 +74,7 @@ fun ItemSlider(
                                 currentOffset < -threshold -> {
                                     // Snap to left
                                     offsetX.animateTo(
-                                        -trackWidth / 2,
+                                        -maxOffset,
                                         animationSpec = tween(300)
                                     )
                                     onSkip()
@@ -76,7 +82,7 @@ fun ItemSlider(
                                 currentOffset > threshold -> {
                                     // Snap to right
                                     offsetX.animateTo(
-                                        trackWidth / 2,
+                                        maxOffset,
                                         animationSpec = tween(300)
                                     )
                                     onDone()
@@ -98,7 +104,7 @@ fun ItemSlider(
                     onHorizontalDrag = { _, dragAmount ->
                         scope.launch {
                             val newValue = (offsetX.value + dragAmount)
-                                .coerceIn(-trackWidth / 2, trackWidth / 2)
+                                .coerceIn(-maxOffset, maxOffset)
                             offsetX.snapTo(newValue)
                         }
                     }
@@ -135,15 +141,19 @@ fun ItemSlider(
                 }
             }
 
-            // Thumb (smaller)
+            // Thumb (smaller, stays within bounds)
             val thumbX = with(density) {
-                (offsetX.value + trackWidth / 2).toDp()
+                // Center the track, then add offset
+                val centerOffset = trackWidth / 2
+                val thumbRadius = 16.dp.toPx()
+                (centerOffset + offsetX.value - thumbRadius).toDp()
             }
 
             Box(
                 modifier = Modifier
-                    .offset(x = thumbX - 16.dp)
-                    .align(Alignment.CenterStart)
+                    .offset(x = thumbX)
+                    .align(Alignment.TopStart)
+                    .padding(vertical = 4.dp)
                     .size(32.dp)
                     .clip(CircleShape)
                     .background(
