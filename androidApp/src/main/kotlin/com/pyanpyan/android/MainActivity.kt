@@ -37,10 +37,10 @@ class MainActivity : ComponentActivity() {
                                     currentScreen = Screen.ChecklistDetail(checklistId)
                                 },
                                 onCreateClick = {
-                                    // TODO: Navigate to create screen
+                                    currentScreen = Screen.CreateEdit(null)
                                 },
                                 onEditClick = { checklistId ->
-                                    // TODO: Navigate to edit screen
+                                    currentScreen = Screen.CreateEdit(checklistId)
                                 },
                                 repository = repository
                             )
