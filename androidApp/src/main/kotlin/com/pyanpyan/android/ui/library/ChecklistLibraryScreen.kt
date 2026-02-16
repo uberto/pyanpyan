@@ -77,8 +77,16 @@ fun ChecklistLibraryScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-            // Active checklists
+            // Active checklists section
             if (uiState.activeChecklists.isNotEmpty()) {
+                item {
+                    Text(
+                        text = "Active",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                    )
+                }
                 items(uiState.activeChecklists) { checklist ->
                     ChecklistCard(
                         checklist = checklist,
@@ -90,18 +98,16 @@ fun ChecklistLibraryScreen(
                 }
             }
 
-            // Separator if both sections present
-            if (uiState.activeChecklists.isNotEmpty() && uiState.inactiveChecklists.isNotEmpty()) {
+            // Inactive checklists section
+            if (uiState.inactiveChecklists.isNotEmpty()) {
                 item {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant
+                    Text(
+                        text = "Inactive",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
                     )
                 }
-            }
-
-            // Inactive checklists
-            if (uiState.inactiveChecklists.isNotEmpty()) {
                 items(uiState.inactiveChecklists) { checklist ->
                     ChecklistCard(
                         checklist = checklist,
