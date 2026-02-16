@@ -80,7 +80,8 @@ fun ChecklistScreen(
                             ChecklistItemRow(
                                 item = item,
                                 onMarkDone = { viewModel.markItemDone(item.id) },
-                                onIgnoreToday = { viewModel.ignoreItemToday(item.id) }
+                                onIgnoreToday = { viewModel.ignoreItemToday(item.id) },
+                                onReset = { viewModel.resetItem(item.id) }
                             )
                         }
                     }
@@ -94,7 +95,8 @@ fun ChecklistScreen(
 fun ChecklistItemRow(
     item: ChecklistItem,
     onMarkDone: () -> Unit,
-    onIgnoreToday: () -> Unit
+    onIgnoreToday: () -> Unit,
+    onReset: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -146,16 +148,18 @@ fun ChecklistItemRow(
                         state = SliderState.Center,
                         onSkip = onIgnoreToday,
                         onDone = onMarkDone,
-                        enabled = true
+                        enabled = true,
+                        onReset = onReset
                     )
                 }
                 ChecklistItemState.Done -> {
                     Column {
                         ItemSlider(
                             state = SliderState.Right,
-                            onSkip = {},
-                            onDone = {},
-                            enabled = false
+                            onSkip = onIgnoreToday,
+                            onDone = onMarkDone,
+                            enabled = true,
+                            onReset = onReset
                         )
                         Text(
                             text = "✓ Completed",
@@ -169,9 +173,10 @@ fun ChecklistItemRow(
                     Column {
                         ItemSlider(
                             state = SliderState.Left,
-                            onSkip = {},
-                            onDone = {},
-                            enabled = false
+                            onSkip = onIgnoreToday,
+                            onDone = onMarkDone,
+                            enabled = true,
+                            onReset = onReset
                         )
                         Text(
                             text = "⊘ Skipped today",

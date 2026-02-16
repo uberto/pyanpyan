@@ -87,4 +87,24 @@ class ChecklistViewModel(
                 }
         }
     }
+
+    fun resetItem(itemId: ChecklistItemId) {
+        val currentChecklist = _uiState.value.checklist ?: return
+        val item = currentChecklist.findItem(itemId) ?: return
+
+        val updatedItem = item.reset()
+        val updatedChecklist = currentChecklist.updateItem(updatedItem)
+
+        // Optimistically update UI
+        _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
+
+        // Persist to repository
+        viewModelScope.launch {
+            repository.saveChecklist(updatedChecklist)
+                .onFailure { error ->
+                    // Revert UI on failure
+                    loadChecklist()
+                }
+        }
+    }
 }

@@ -25,7 +25,8 @@ fun ItemSlider(
     onSkip: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    onReset: () -> Unit = {}
 ) {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
@@ -55,8 +56,8 @@ fun ItemSlider(
             .height(56.dp)
             .clip(RoundedCornerShape(28.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .pointerInput(enabled, state) {
-                if (!enabled || state.isCommitted) return@pointerInput
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
 
                 detectHorizontalDragGestures(
                     onDragEnd = {
@@ -86,6 +87,10 @@ fun ItemSlider(
                                         0f,
                                         animationSpec = tween(300)
                                     )
+                                    // Only call onReset if we were previously committed
+                                    if (state.isCommitted) {
+                                        onReset()
+                                    }
                                 }
                             }
                         }
