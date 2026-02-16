@@ -108,16 +108,18 @@ fun ChecklistItemRow(
             }
         )
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Item title with optional icon
+            // Left side: Icon and title (70% width)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.weight(0.7f)
             ) {
                 // Placeholder for icon (will be implemented later)
                 item.iconId?.let {
@@ -141,51 +143,21 @@ fun ChecklistItemRow(
                 )
             }
 
-            // Slider or status text
-            when (item.state) {
-                ChecklistItemState.Pending -> {
-                    ItemSlider(
-                        state = SliderState.Center,
-                        onSkip = onIgnoreToday,
-                        onDone = onMarkDone,
-                        enabled = true,
-                        onReset = onReset
-                    )
-                }
-                ChecklistItemState.Done -> {
-                    Column {
-                        ItemSlider(
-                            state = SliderState.Right,
-                            onSkip = onIgnoreToday,
-                            onDone = onMarkDone,
-                            enabled = true,
-                            onReset = onReset
-                        )
-                        Text(
-                            text = "✓ Completed",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-                }
-                ChecklistItemState.IgnoredToday -> {
-                    Column {
-                        ItemSlider(
-                            state = SliderState.Left,
-                            onSkip = onIgnoreToday,
-                            onDone = onMarkDone,
-                            enabled = true,
-                            onReset = onReset
-                        )
-                        Text(
-                            text = "⊘ Skipped today",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-                }
+            // Right side: Slider (30% width)
+            Box(
+                modifier = Modifier.weight(0.3f)
+            ) {
+                ItemSlider(
+                    state = when (item.state) {
+                        ChecklistItemState.Pending -> SliderState.Center
+                        ChecklistItemState.Done -> SliderState.Right
+                        ChecklistItemState.IgnoredToday -> SliderState.Left
+                    },
+                    onSkip = onIgnoreToday,
+                    onDone = onMarkDone,
+                    enabled = true,
+                    onReset = onReset
+                )
             }
         }
     }
