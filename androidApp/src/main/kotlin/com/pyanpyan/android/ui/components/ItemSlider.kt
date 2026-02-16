@@ -39,7 +39,9 @@ fun ItemSlider(
 
     // Maximum offset to keep thumb inside track (thumb size is 32dp)
     val thumbSize = with(density) { 32.dp.toPx() }
-    val maxOffset = (trackWidth - thumbSize) / 2
+    val maxOffset = remember(trackWidth) {
+        (trackWidth - thumbSize) / 2
+    }
 
     // Initial position based on state
     LaunchedEffect(state, trackWidth) {

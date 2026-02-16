@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,11 @@ fun ChecklistLibraryScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     var checklistToDelete by remember { mutableStateOf<Checklist?>(null) }
+
+    // Refresh when screen is displayed
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
 
     Scaffold(
         topBar = {

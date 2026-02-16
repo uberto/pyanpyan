@@ -31,6 +31,10 @@ class ChecklistLibraryViewModel(
         loadChecklists()
     }
 
+    fun refresh() {
+        loadChecklists()
+    }
+
     private fun loadChecklists() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
