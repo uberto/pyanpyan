@@ -14,7 +14,15 @@ import java.util.UUID
 data class CreateEditUiState(
     val name: String = "",
     val color: ChecklistColor = ChecklistColor.SOFT_BLUE,
-    val daysOfWeek: Set<DayOfWeek> = emptySet(),
+    val daysOfWeek: Set<DayOfWeek> = setOf(
+        DayOfWeek.MONDAY,
+        DayOfWeek.TUESDAY,
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY,
+        DayOfWeek.SATURDAY,
+        DayOfWeek.SUNDAY
+    ),
     val timeRange: TimeRange = TimeRange.AllDay,
     val items: List<String> = listOf(""),
     val statePersistence: StatePersistenceDuration = StatePersistenceDuration.FIFTEEN_MINUTES,
