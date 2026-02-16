@@ -53,8 +53,8 @@ fun ItemSlider(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .clip(RoundedCornerShape(28.dp))
+            .height(40.dp)
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .pointerInput(enabled) {
                 if (!enabled) return@pointerInput
@@ -109,38 +109,42 @@ fun ItemSlider(
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             trackWidth = with(density) { constraints.maxWidth.toFloat() }
 
-            // Left label (Skip)
-            Text(
-                text = "Skip",
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                    alpha = if (offsetX.value < 0) 0.8f else 0.3f
-                ),
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 16.dp)
-            )
+            // Single label based on position
+            when {
+                offsetX.value < -threshold -> {
+                    // Show "Skipped" on the left
+                    Text(
+                        text = "Skipped",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 12.dp)
+                    )
+                }
+                offsetX.value > threshold -> {
+                    // Show "Done" on the right
+                    Text(
+                        text = "Done",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 12.dp)
+                    )
+                }
+            }
 
-            // Right label (Done)
-            Text(
-                text = "Done",
-                color = MaterialTheme.colorScheme.primary.copy(
-                    alpha = if (offsetX.value > 0) 0.8f else 0.3f
-                ),
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
-            )
-
-            // Thumb
+            // Thumb (smaller)
             val thumbX = with(density) {
                 (offsetX.value + trackWidth / 2).toDp()
             }
 
             Box(
                 modifier = Modifier
-                    .offset(x = thumbX - 24.dp)
+                    .offset(x = thumbX - 16.dp)
                     .align(Alignment.CenterStart)
-                    .size(48.dp)
+                    .size(32.dp)
                     .clip(CircleShape)
                     .background(
                         when {
