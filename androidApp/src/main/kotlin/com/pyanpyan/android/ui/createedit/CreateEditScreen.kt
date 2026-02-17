@@ -118,6 +118,14 @@ fun CreateEditScreen(
                     onColorSelected = { viewModel.updateColor(it) }
                 )
 
+                // Schedule Picker
+                SchedulePicker(
+                    daysOfWeek = uiState.daysOfWeek,
+                    timeRange = uiState.timeRange,
+                    onDaysChange = { viewModel.updateDays(it) },
+                    onTimeRangeChange = { viewModel.updateTimeRange(it) }
+                )
+
                 // Items Editor
                 ItemsEditor(
                     items = uiState.items,
