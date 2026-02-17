@@ -12,5 +12,5 @@ interface SettingsRepository {
     /**
      * Update settings
      */
-    suspend fun updateSettings(settings: AppSettings): Result<Unit>
+    suspend fun updateSettings(settings: AppSettings): RepositoryResult<Unit>
 }
