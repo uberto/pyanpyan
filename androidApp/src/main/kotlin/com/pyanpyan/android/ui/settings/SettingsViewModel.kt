@@ -42,4 +42,14 @@ class SettingsViewModel(
                 }
         }
     }
+
+    fun updateHapticFeedback(enabled: Boolean) {
+        viewModelScope.launch {
+            val updated = settings.value.copy(enableHapticFeedback = enabled)
+            repository.updateSettings(updated)
+                .onFailure { error ->
+                    Log.e("SettingsViewModel", "Failed to update haptic feedback: $error")
+                }
+        }
+    }
 }

@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.pyanpyan.domain.model.TimeRange
 import kotlinx.datetime.DayOfWeek
@@ -173,19 +174,33 @@ fun TimeRangePicker(
                     .padding(start = 48.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedButton(
-                    onClick = { showStartPicker = true },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Start: ${formatTime(startTime)}")
-                }
+                OutlinedTextField(
+                    value = formatTime(startTime),
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text("Start") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { showStartPicker = true },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
 
-                OutlinedButton(
-                    onClick = { showEndPicker = true },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("End: ${formatTime(endTime)}")
-                }
+                OutlinedTextField(
+                    value = formatTime(endTime),
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text("End") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { showEndPicker = true },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
             }
         }
     }

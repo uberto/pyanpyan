@@ -14,8 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -26,10 +28,12 @@ fun ItemSlider(
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    enableHaptic: Boolean = true,
     onReset: () -> Unit = {}
 ) {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
 
     // Track dimensions
     var trackWidth by remember { mutableStateOf(0f) }
@@ -43,15 +47,21 @@ fun ItemSlider(
         (trackWidth - thumbSize) / 2
     }
 
-    // Initial position based on state
+    // Track if we're currently dragging
+    var isDragging by remember { mutableStateOf(false) }
+
+    // Initial position based on state (only when not dragging)
     LaunchedEffect(state, trackWidth) {
-        if (trackWidth > 0) {
+        if (trackWidth > 0 && !isDragging) {
             val target = when (state) {
                 SliderState.Center -> 0f
                 SliderState.Left -> -maxOffset
                 SliderState.Right -> maxOffset
             }
-            offsetX.snapTo(target)
+            // Only snap if position is significantly different
+            if (kotlin.math.abs(offsetX.value - target) > 10f) {
+                offsetX.snapTo(target)
+            }
         }
     }
 
@@ -68,7 +78,11 @@ fun ItemSlider(
                 if (!enabled || maxOffset <= 0) return@pointerInput
 
                 detectHorizontalDragGestures(
+                    onDragStart = {
+                        isDragging = true
+                    },
                     onDragEnd = {
+                        isDragging = false
                         scope.launch {
                             val currentOffset = offsetX.value
 
@@ -79,6 +93,9 @@ fun ItemSlider(
                                         -maxOffset,
                                         animationSpec = tween(300)
                                     )
+                                    if (enableHaptic) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    }
                                     onSkip()
                                 }
                                 currentOffset > threshold -> {
@@ -87,6 +104,9 @@ fun ItemSlider(
                                         maxOffset,
                                         animationSpec = tween(300)
                                     )
+                                    if (enableHaptic) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    }
                                     onDone()
                                 }
                                 else -> {
@@ -102,6 +122,9 @@ fun ItemSlider(
                                 }
                             }
                         }
+                    },
+                    onDragCancel = {
+                        isDragging = false
                     },
                     onHorizontalDrag = { _, dragAmount ->
                         scope.launch {

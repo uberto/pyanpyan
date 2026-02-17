@@ -46,6 +46,7 @@ fun ChecklistScreen(
     )
 
     val uiState by viewModel.uiState.collectAsState()
+    val settings by settingsRepository.settings.collectAsState(initial = com.pyanpyan.domain.model.AppSettings())
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -89,7 +90,8 @@ fun ChecklistScreen(
                                 item = item,
                                 onMarkDone = { viewModel.markItemDone(item.id) },
                                 onIgnoreToday = { viewModel.ignoreItemToday(item.id) },
-                                onReset = { viewModel.resetItem(item.id) }
+                                onReset = { viewModel.resetItem(item.id) },
+                                enableHaptic = settings.enableHapticFeedback
                             )
                         }
                     }
@@ -104,7 +106,8 @@ fun ChecklistItemRow(
     item: ChecklistItem,
     onMarkDone: () -> Unit,
     onIgnoreToday: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    enableHaptic: Boolean = true
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -164,6 +167,7 @@ fun ChecklistItemRow(
                     onSkip = onIgnoreToday,
                     onDone = onMarkDone,
                     enabled = true,
+                    enableHaptic = enableHaptic,
                     onReset = onReset
                 )
             }
