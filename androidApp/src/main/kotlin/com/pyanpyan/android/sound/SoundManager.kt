@@ -47,7 +47,7 @@ class SoundManager(
                     toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 100)
                 }
                 SwipeSound.POP -> {
-                    toneGenerator?.startTone(ToneGenerator.TONE_DTMF_9, 80)
+                    toneGenerator?.startTone(ToneGenerator.TONE_DTMF_S, 80)
                 }
             }
         } catch (e: Exception) {
