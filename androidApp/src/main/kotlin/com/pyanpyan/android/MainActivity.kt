@@ -8,11 +8,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.pyanpyan.android.data.RepositoryFactory
+import com.pyanpyan.android.repository.DataStoreSettingsRepository
 import com.pyanpyan.android.ui.checklist.ChecklistScreen
 import com.pyanpyan.android.ui.createedit.CreateEditScreen
 import com.pyanpyan.android.ui.library.ChecklistLibraryScreen
 import com.pyanpyan.android.ui.theme.PyanpyanTheme
 import com.pyanpyan.domain.model.ChecklistId
+import com.pyanpyan.domain.repository.SettingsRepository
 import androidx.compose.material3.Text
 
 sealed class Screen {
@@ -22,8 +24,11 @@ sealed class Screen {
 }
 
 class MainActivity : ComponentActivity() {
+    private lateinit var settingsRepository: SettingsRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        settingsRepository = DataStoreSettingsRepository(applicationContext)
         setContent {
             PyanpyanTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -51,7 +56,8 @@ class MainActivity : ComponentActivity() {
                                 onBackClick = {
                                     currentScreen = Screen.Library
                                 },
-                                repository = repository
+                                repository = repository,
+                                settingsRepository = settingsRepository
                             )
                         }
                         is Screen.CreateEdit -> {

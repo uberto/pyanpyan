@@ -2,6 +2,7 @@ package com.pyanpyan.android.ui.checklist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pyanpyan.android.sound.SoundManager
 import com.pyanpyan.domain.command.IgnoreItemToday
 import com.pyanpyan.domain.command.MarkItemDone
 import com.pyanpyan.domain.model.*
@@ -19,7 +20,8 @@ data class ChecklistUiState(
 
 class ChecklistViewModel(
     private val checklistId: ChecklistId,
-    private val repository: ChecklistRepository
+    private val repository: ChecklistRepository,
+    private val soundManager: SoundManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChecklistUiState())
@@ -95,6 +97,14 @@ class ChecklistViewModel(
         // Optimistically update UI
         _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
 
+        // Play swipe sound
+        soundManager.playSwipeSound()
+
+        // Check if all items completed
+        if (updatedChecklist.items.all { it.state != ChecklistItemState.Pending }) {
+            soundManager.playCompletionSound()
+        }
+
         // Persist to repository
         viewModelScope.launch {
             repository.saveChecklist(updatedChecklist)
@@ -115,6 +125,14 @@ class ChecklistViewModel(
 
         // Optimistically update UI
         _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
+
+        // Play swipe sound
+        soundManager.playSwipeSound()
+
+        // Check if all items completed
+        if (updatedChecklist.items.all { it.state != ChecklistItemState.Pending }) {
+            soundManager.playCompletionSound()
+        }
 
         // Persist to repository
         viewModelScope.launch {
@@ -144,5 +162,10 @@ class ChecklistViewModel(
                     loadChecklist()
                 }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        soundManager.release()
     }
 }

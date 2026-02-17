@@ -1,5 +1,6 @@
 package com.pyanpyan.android.ui.checklist
 
+import com.pyanpyan.android.sound.SoundManager
 import com.pyanpyan.domain.model.*
 import com.pyanpyan.domain.repository.ChecklistRepository
 import com.pyanpyan.domain.repository.RepositoryResult
@@ -56,7 +57,8 @@ class ChecklistViewModelStateResetTest {
         )
 
         val repository = FakeChecklistRepository(checklist)
-        val viewModel = ChecklistViewModel(checklist.id, repository)
+        val soundManager = FakeSoundManager()
+        val viewModel = ChecklistViewModel(checklist.id, repository, soundManager)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Verify: Item was reset to Pending
@@ -88,7 +90,8 @@ class ChecklistViewModelStateResetTest {
         )
 
         val repository = FakeChecklistRepository(checklist)
-        val viewModel = ChecklistViewModel(checklist.id, repository)
+        val soundManager = FakeSoundManager()
+        val viewModel = ChecklistViewModel(checklist.id, repository, soundManager)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Verify: Item remains Done
@@ -122,6 +125,26 @@ class ChecklistViewModelStateResetTest {
 
         override suspend fun importFromJson(json: String): RepositoryResult<Unit> {
             return RepositoryResult.success(Unit)
+        }
+    }
+
+    private class FakeSoundManager : SoundManager(
+        context = null,
+        settingsFlow = kotlinx.coroutines.flow.flowOf(
+            com.pyanpyan.domain.model.AppSettings()
+        ),
+        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined)
+    ) {
+        override fun playSwipeSound() {
+            // No-op for tests
+        }
+
+        override fun playCompletionSound() {
+            // No-op for tests
+        }
+
+        override fun release() {
+            // No-op for tests
         }
     }
 }

@@ -10,32 +10,48 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.pyanpyan.android.sound.SoundManager
 import com.pyanpyan.android.ui.components.ItemSlider
 import com.pyanpyan.android.ui.components.SliderState
 import com.pyanpyan.domain.model.ChecklistId
 import com.pyanpyan.domain.model.ChecklistItem
 import com.pyanpyan.domain.model.ChecklistItemState
 import com.pyanpyan.domain.repository.ChecklistRepository
+import com.pyanpyan.domain.repository.SettingsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChecklistScreen(
     checklistId: ChecklistId,
     onBackClick: () -> Unit,
-    repository: ChecklistRepository
+    repository: ChecklistRepository,
+    settingsRepository: SettingsRepository
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val soundManager = remember {
+        SoundManager(
+            context = context.applicationContext,
+            settingsFlow = settingsRepository.settings,
+            scope = scope
+        )
+    }
+
     val viewModel: ChecklistViewModel = viewModel(
         key = checklistId.value,
         factory = viewModelFactory {
             initializer {
-                ChecklistViewModel(checklistId, repository)
+                ChecklistViewModel(checklistId, repository, soundManager)
             }
         }
     )

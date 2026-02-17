@@ -14,22 +14,24 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-class SoundManager(
-    context: Context,
+open class SoundManager(
+    context: Context?,
     settingsFlow: Flow<AppSettings>,
     scope: CoroutineScope
 ) {
-    private val appContext = context.applicationContext
+    private val appContext = context?.applicationContext
     private var toneGenerator: ToneGenerator? = null
     @Volatile
     private var currentSettings: AppSettings = AppSettings()
     private val settingsJob: Job
 
     init {
-        try {
-            toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
-        } catch (e: Exception) {
-            Log.e("SoundManager", "Failed to initialize ToneGenerator", e)
+        if (appContext != null) {
+            try {
+                toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
+            } catch (e: Exception) {
+                Log.e("SoundManager", "Failed to initialize ToneGenerator", e)
+            }
         }
 
         // Observe settings changes
@@ -40,7 +42,7 @@ class SoundManager(
         }
     }
 
-    fun playSwipeSound() {
+    open fun playSwipeSound() {
         try {
             when (currentSettings.swipeSound) {
                 SwipeSound.NONE -> { /* No sound */ }
@@ -59,7 +61,7 @@ class SoundManager(
         }
     }
 
-    fun playCompletionSound() {
+    open fun playCompletionSound() {
         try {
             when (currentSettings.completionSound) {
                 CompletionSound.NONE -> { /* No sound */ }
@@ -82,17 +84,19 @@ class SoundManager(
 
     private fun playSystemNotification(type: Int) {
         try {
-            val notificationUri: Uri? = RingtoneManager.getDefaultUri(type)
-            if (notificationUri != null) {
-                val ringtone = RingtoneManager.getRingtone(appContext, notificationUri)
-                ringtone?.play()
+            if (appContext != null) {
+                val notificationUri: Uri? = RingtoneManager.getDefaultUri(type)
+                if (notificationUri != null) {
+                    val ringtone = RingtoneManager.getRingtone(appContext, notificationUri)
+                    ringtone?.play()
+                }
             }
         } catch (e: Exception) {
             Log.e("SoundManager", "Error playing system notification", e)
         }
     }
 
-    fun release() {
+    open fun release() {
         try {
             settingsJob.cancel()
             toneGenerator?.release()
