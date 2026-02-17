@@ -6,9 +6,9 @@ import com.pyanpyan.domain.repository.RepositoryResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Clock
 import org.junit.After
@@ -33,7 +33,7 @@ class ChecklistViewModelStateResetTest {
     }
 
     @Test
-    fun `resets items when statePersistence duration exceeded`() = runBlocking {
+    fun `resets items when statePersistence duration exceeded`() = runTest {
         // Setup: Checklist with lastAccessedAt = 20 minutes ago, persistence = 15 minutes
         val now = Clock.System.now()
         val twentyMinutesAgo = now - 20.minutes
@@ -65,7 +65,7 @@ class ChecklistViewModelStateResetTest {
     }
 
     @Test
-    fun `does not reset items when within statePersistence duration`() = runBlocking {
+    fun `does not reset items when within statePersistence duration`() = runTest {
         // Setup: Checklist with lastAccessedAt = 10 minutes ago, persistence = 15 minutes
         val now = Clock.System.now()
         val tenMinutesAgo = now - 10.minutes

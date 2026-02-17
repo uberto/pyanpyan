@@ -52,11 +52,23 @@ class ChecklistViewModel(
                         // Reset all items and update timestamp
                         val reset = checklist.resetAllItems().copy(lastAccessedAt = now)
                         repository.saveChecklist(reset)
+                            .onFailure {
+                                // If save fails, use original checklist (don't show reset state)
+                                _uiState.value = ChecklistUiState(
+                                    checklist = checklist,
+                                    isLoading = false
+                                )
+                                return@onSuccess
+                            }
                         reset
                     } else {
                         // Just update timestamp
                         val updated = checklist.copy(lastAccessedAt = now)
                         repository.saveChecklist(updated)
+                            .onFailure {
+                                // If timestamp update fails, still show checklist
+                                // This is less critical - just log or ignore
+                            }
                         updated
                     }
 
