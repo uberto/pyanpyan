@@ -1,6 +1,8 @@
 package com.pyanpyan.domain.model
 
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 @Serializable
 enum class StatePersistenceDuration(
@@ -13,6 +15,9 @@ enum class StatePersistenceDuration(
     ONE_HOUR(3_600_000L, "1 hour"),
     ONE_DAY(86_400_000L, "1 day"),
     NEVER(null, "Never");
+
+    val duration: Duration
+        get() = milliseconds?.milliseconds ?: Duration.INFINITE
 
     companion object {
         val DEFAULT = FIFTEEN_MINUTES

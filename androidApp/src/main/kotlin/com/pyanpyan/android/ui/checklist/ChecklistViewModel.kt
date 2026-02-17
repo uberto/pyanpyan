@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 data class ChecklistUiState(
     val checklist: Checklist? = null,
@@ -34,8 +35,33 @@ class ChecklistViewModel(
 
             repository.getChecklist(checklistId)
                 .onSuccess { checklist ->
+                    if (checklist == null) {
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        return@onSuccess
+                    }
+
+                    val now = Clock.System.now()
+
+                    // Check if state should be reset
+                    val shouldReset = checklist.lastAccessedAt?.let { lastAccess ->
+                        val elapsed = now - lastAccess
+                        elapsed > checklist.statePersistence.duration
+                    } ?: false
+
+                    val finalChecklist = if (shouldReset) {
+                        // Reset all items and update timestamp
+                        val reset = checklist.resetAllItems().copy(lastAccessedAt = now)
+                        repository.saveChecklist(reset)
+                        reset
+                    } else {
+                        // Just update timestamp
+                        val updated = checklist.copy(lastAccessedAt = now)
+                        repository.saveChecklist(updated)
+                        updated
+                    }
+
                     _uiState.value = ChecklistUiState(
-                        checklist = checklist,
+                        checklist = finalChecklist,
                         isLoading = false
                     )
                 }
