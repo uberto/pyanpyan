@@ -121,12 +121,20 @@ fun TimeRangePicker(
     onChange: (TimeRange) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showStartPicker by remember { mutableStateOf(false) }
-    var showEndPicker by remember { mutableStateOf(false) }
-
     val isAllDay = timeRange is TimeRange.AllDay
     val startTime = if (timeRange is TimeRange.Specific) timeRange.startTime else LocalTime(9, 0)
     val endTime = if (timeRange is TimeRange.Specific) timeRange.endTime else LocalTime(17, 0)
+
+    var startTimeText by remember(startTime) { mutableStateOf(formatTime(startTime)) }
+    var endTimeText by remember(endTime) { mutableStateOf(formatTime(endTime)) }
+
+    // Update text when time changes externally
+    LaunchedEffect(startTime) {
+        startTimeText = formatTime(startTime)
+    }
+    LaunchedEffect(endTime) {
+        endTimeText = formatTime(endTime)
+    }
 
     Column(
         modifier = modifier,
@@ -175,46 +183,42 @@ fun TimeRangePicker(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
-                    value = formatTime(startTime),
-                    onValueChange = { },
-                    readOnly = true,
+                    value = startTimeText,
+                    onValueChange = { newText ->
+                        startTimeText = newText
+                        parseTime(newText)?.let { newStartTime ->
+                            onChange(TimeRange.Specific(newStartTime, endTime))
+                        }
+                    },
                     label = { Text("Start") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { showStartPicker = true },
+                    placeholder = { Text("9:00 AM") },
+                    modifier = Modifier.weight(1f),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black
-                    )
+                    ),
+                    singleLine = true
                 )
 
                 OutlinedTextField(
-                    value = formatTime(endTime),
-                    onValueChange = { },
-                    readOnly = true,
+                    value = endTimeText,
+                    onValueChange = { newText ->
+                        endTimeText = newText
+                        parseTime(newText)?.let { newEndTime ->
+                            onChange(TimeRange.Specific(startTime, newEndTime))
+                        }
+                    },
                     label = { Text("End") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { showEndPicker = true },
+                    placeholder = { Text("5:00 PM") },
+                    modifier = Modifier.weight(1f),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black
-                    )
+                    ),
+                    singleLine = true
                 )
             }
         }
-    }
-
-    // Time picker dialogs would be implemented with Material3 TimePicker
-    // For now, using simple dialogs (full implementation in actual code)
-    if (showStartPicker) {
-        // TODO: Implement Material3 TimePicker dialog
-        showStartPicker = false
-    }
-
-    if (showEndPicker) {
-        // TODO: Implement Material3 TimePicker dialog
-        showEndPicker = false
     }
 }
 
@@ -222,4 +226,37 @@ private fun formatTime(time: LocalTime): String {
     val hour = if (time.hour == 0) 12 else if (time.hour > 12) time.hour - 12 else time.hour
     val amPm = if (time.hour < 12) "AM" else "PM"
     return String.format("%d:%02d %s", hour, time.minute, amPm)
+}
+
+private fun parseTime(text: String): LocalTime? {
+    return try {
+        // Support formats: "9:00 AM", "9:00AM", "9 AM", "9AM", "9:00", "09:00"
+        val trimmed = text.trim().uppercase()
+        val isAM = trimmed.contains("AM")
+        val isPM = trimmed.contains("PM")
+
+        // Remove AM/PM and clean up
+        val timeOnly = trimmed.replace("AM", "").replace("PM", "").trim()
+
+        // Split by colon
+        val parts = timeOnly.split(":")
+        val hour = parts[0].trim().toIntOrNull() ?: return null
+        val minute = if (parts.size > 1) parts[1].trim().toIntOrNull() ?: 0 else 0
+
+        // Convert to 24-hour format
+        val hour24 = when {
+            !isAM && !isPM -> hour // 24-hour format already
+            isPM && hour != 12 -> hour + 12
+            isAM && hour == 12 -> 0
+            else -> hour
+        }
+
+        if (hour24 in 0..23 && minute in 0..59) {
+            LocalTime(hour24, minute)
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        null
+    }
 }

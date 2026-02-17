@@ -65,8 +65,8 @@ fun ItemSlider(
         }
     }
 
-    // Drag threshold (35%)
-    val threshold = trackWidth * 0.35f
+    // Drag threshold (20% - easier to trigger)
+    val threshold = trackWidth * 0.20f
 
     Box(
         modifier = modifier
