@@ -73,13 +73,13 @@ fun DayOfWeekChipRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         val days = listOf(
-            DayOfWeek.MONDAY to "M",
-            DayOfWeek.TUESDAY to "T",
-            DayOfWeek.WEDNESDAY to "W",
-            DayOfWeek.THURSDAY to "T",
-            DayOfWeek.FRIDAY to "F",
-            DayOfWeek.SATURDAY to "S",
-            DayOfWeek.SUNDAY to "S"
+            DayOfWeek.MONDAY to "Mo",
+            DayOfWeek.TUESDAY to "Tu",
+            DayOfWeek.WEDNESDAY to "We",
+            DayOfWeek.THURSDAY to "Th",
+            DayOfWeek.FRIDAY to "Fr",
+            DayOfWeek.SATURDAY to "Sa",
+            DayOfWeek.SUNDAY to "Su"
         )
 
         days.forEach { (day, label) ->
