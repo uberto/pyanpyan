@@ -81,7 +81,10 @@ fun ChecklistScreen(
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        items(checklist.items) { item ->
+                        items(
+                            items = checklist.items,
+                            key = { it.id.value }
+                        ) { item ->
                             ChecklistItemRow(
                                 item = item,
                                 onMarkDone = { viewModel.markItemDone(item.id) },
