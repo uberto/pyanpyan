@@ -1,6 +1,5 @@
 package com.pyanpyan.domain.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,17 +10,17 @@ data class AppSettings(
 )
 
 @Serializable
-enum class SwipeSound {
-    @SerialName("none") NONE,
-    @SerialName("soft_click") SOFT_CLICK,
-    @SerialName("beep") BEEP,
-    @SerialName("pop") POP
+enum class SwipeSound(val displayName: String) {
+    NONE("None"),
+    SOFT_CLICK("Soft Click"),
+    BEEP("Beep"),
+    POP("Pop")
 }
 
 @Serializable
-enum class CompletionSound {
-    @SerialName("none") NONE,
-    @SerialName("notification") NOTIFICATION,
-    @SerialName("success_chime") SUCCESS_CHIME,
-    @SerialName("tada") TADA
+enum class CompletionSound(val displayName: String) {
+    NONE("None"),
+    NOTIFICATION("Notification"),
+    SUCCESS_CHIME("Success Chime"),
+    TADA("Tada")
 }

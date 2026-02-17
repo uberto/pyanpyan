@@ -6,6 +6,12 @@ import kotlin.test.assertEquals
 
 class AppSettingsTest {
 
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
+
     @Test
     fun `serializes AppSettings to JSON`() {
         val settings = AppSettings(
@@ -14,8 +20,8 @@ class AppSettingsTest {
             enableHapticFeedback = true
         )
 
-        val json = Json.encodeToString(AppSettings.serializer(), settings)
-        val decoded = Json.decodeFromString(AppSettings.serializer(), json)
+        val jsonString = json.encodeToString(AppSettings.serializer(), settings)
+        val decoded = json.decodeFromString(AppSettings.serializer(), jsonString)
 
         assertEquals(settings, decoded)
     }
