@@ -12,15 +12,17 @@ import com.pyanpyan.android.repository.DataStoreSettingsRepository
 import com.pyanpyan.android.ui.checklist.ChecklistScreen
 import com.pyanpyan.android.ui.createedit.CreateEditScreen
 import com.pyanpyan.android.ui.library.ChecklistLibraryScreen
+import com.pyanpyan.android.ui.settings.SettingsScreen
 import com.pyanpyan.android.ui.theme.PyanpyanTheme
 import com.pyanpyan.domain.model.ChecklistId
 import com.pyanpyan.domain.repository.SettingsRepository
 import androidx.compose.material3.Text
 
 sealed class Screen {
-    object Library : Screen()
+    data object Library : Screen()
     data class ChecklistDetail(val checklistId: ChecklistId) : Screen()
     data class CreateEdit(val checklistId: ChecklistId? = null) : Screen()
+    data object Settings : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -47,6 +49,9 @@ class MainActivity : ComponentActivity() {
                                 onEditClick = { checklistId ->
                                     currentScreen = Screen.CreateEdit(checklistId)
                                 },
+                                onSettingsClick = {
+                                    currentScreen = Screen.Settings
+                                },
                                 repository = repository
                             )
                         }
@@ -70,6 +75,14 @@ class MainActivity : ComponentActivity() {
                                     currentScreen = Screen.Library
                                 },
                                 repository = repository
+                            )
+                        }
+                        is Screen.Settings -> {
+                            SettingsScreen(
+                                onBackClick = {
+                                    currentScreen = Screen.Library
+                                },
+                                repository = settingsRepository
                             )
                         }
                     }
