@@ -394,3 +394,31 @@ dependencies {
 - Volume control per sound type
 - Dark mode preference
 - Notification settings
+
+## Implementation Notes
+
+### Completed Features
+✅ Schedule UI with day-of-week chips and time range picker
+✅ State reset logic based on statePersistence duration
+✅ SoundManager with ToneGenerator for swipe sounds
+✅ System notification sounds for completion
+✅ Settings screen with sound preferences
+✅ DataStore persistence for settings
+✅ Full integration with ChecklistViewModel
+
+### Known Limitations
+- Time picker dialogs use placeholder implementation (TODO for Material3 TimePicker)
+- Completion sounds use default system sounds (SUCCESS_CHIME and TADA map to same sound currently)
+- No volume control per sound type
+
+### Testing
+- Unit tests: AppSettings serialization, state reset logic, ChecklistViewModel state reset
+- Manual tests: Requires Android emulator or physical device
+- Integration: Sounds play correctly with user preferences (verified through code review)
+
+### Implementation Highlights
+- Used DataStore for settings persistence with JSON serialization
+- SoundManager observes settings Flow for automatic updates
+- Proper resource management with coroutine cancellation and ToneGenerator release
+- Thread-safe implementation with @Volatile annotations
+- Fixed resource leaks identified during code review
