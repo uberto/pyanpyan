@@ -1,13 +1,10 @@
 package com.pyanpyan.android.ui.settings
 
-import android.content.Context
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -33,40 +30,46 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pyanpyan.android.sound.SoundManager
-import com.pyanpyan.domain.model.AppSettings
 import com.pyanpyan.domain.model.CompletionSound
 import com.pyanpyan.domain.model.SwipeSound
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.pyanpyan.domain.repository.SettingsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel,
     onBackClick: () -> Unit,
+    repository: SettingsRepository,
     modifier: Modifier = Modifier
 ) {
+    val viewModel: SettingsViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { SettingsViewModel(repository) }
+        }
+    )
+
     val settings by viewModel.settings.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // Create a temporary SoundManager for testing sounds
-    val testSoundManager = remember(context) {
-        val settingsFlow = MutableStateFlow(settings)
-        SoundManager(context, settingsFlow, scope)
+    // Create ONE SoundManager that observes the repository's settings flow
+    val soundManager = remember(context) {
+        SoundManager(
+            context = context.applicationContext,
+            settingsFlow = repository.settings,  // Use repository flow directly
+            scope = scope
+        )
     }
 
-    // Update the test sound manager when settings change
-    DisposableEffect(settings) {
-        val settingsFlow = MutableStateFlow(settings)
-        val newManager = SoundManager(context, settingsFlow, scope)
-
+    DisposableEffect(Unit) {  // Run once, not on every settings change
         onDispose {
-            testSoundManager.release()
+            soundManager.release()
         }
     }
 
@@ -118,7 +121,7 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.padding(4.dp))
 
                     Button(
-                        onClick = { testSoundManager.playSwipeSound() },
+                        onClick = { soundManager.playSwipeSound() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Test Swipe Sound")
@@ -138,7 +141,7 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.padding(4.dp))
 
                     Button(
-                        onClick = { testSoundManager.playCompletionSound() },
+                        onClick = { soundManager.playCompletionSound() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Test Completion Sound")

@@ -1,5 +1,6 @@
 package com.pyanpyan.android.ui.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pyanpyan.domain.model.AppSettings
@@ -26,6 +27,9 @@ class SettingsViewModel(
         viewModelScope.launch {
             val updated = settings.value.copy(swipeSound = sound)
             repository.updateSettings(updated)
+                .onFailure { error ->
+                    Log.e("SettingsViewModel", "Failed to update swipe sound: $error")
+                }
         }
     }
 
@@ -33,6 +37,9 @@ class SettingsViewModel(
         viewModelScope.launch {
             val updated = settings.value.copy(completionSound = sound)
             repository.updateSettings(updated)
+                .onFailure { error ->
+                    Log.e("SettingsViewModel", "Failed to update completion sound: $error")
+                }
         }
     }
 }
