@@ -1,5 +1,6 @@
 package com.pyanpyan.android.ui.createedit
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,16 @@ fun SchedulePicker(
     onTimeRangeChange: (TimeRange) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
+    // Initialize with all days and all day when expanded for the first time
+    LaunchedEffect(expanded) {
+        if (expanded && daysOfWeek.isEmpty()) {
+            onDaysChange(DayOfWeek.entries.toSet())
+            onTimeRangeChange(TimeRange.AllDay)
+        }
+    }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -29,34 +40,37 @@ fun SchedulePicker(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Schedule",
-                style = MaterialTheme.typography.titleMedium
+                text = if (expanded) "Schedule ▼" else "Schedule ▶",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.clickable { expanded = !expanded }
             )
 
-            // Days of Week
-            Text(
-                text = "Days of Week",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (expanded) {
+                // Days of Week
+                Text(
+                    text = "Days of Week",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-            DayOfWeekChipRow(
-                selectedDays = daysOfWeek,
-                onSelectionChange = onDaysChange
-            )
+                DayOfWeekChipRow(
+                    selectedDays = daysOfWeek,
+                    onSelectionChange = onDaysChange
+                )
 
-            // Time Range
-            Text(
-                text = "Time Range",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+                // Time Range
+                Text(
+                    text = "Time Range",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
 
-            TimeRangePicker(
-                timeRange = timeRange,
-                onChange = onTimeRangeChange
-            )
+                TimeRangePicker(
+                    timeRange = timeRange,
+                    onChange = onTimeRangeChange
+                )
+            }
         }
     }
 }
@@ -73,13 +87,13 @@ fun DayOfWeekChipRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         val days = listOf(
-            DayOfWeek.MONDAY to "Mo",
-            DayOfWeek.TUESDAY to "Tu",
-            DayOfWeek.WEDNESDAY to "We",
-            DayOfWeek.THURSDAY to "Th",
-            DayOfWeek.FRIDAY to "Fr",
-            DayOfWeek.SATURDAY to "Sa",
-            DayOfWeek.SUNDAY to "Su"
+            DayOfWeek.MONDAY to "M",
+            DayOfWeek.TUESDAY to "T",
+            DayOfWeek.WEDNESDAY to "W",
+            DayOfWeek.THURSDAY to "T",
+            DayOfWeek.FRIDAY to "F",
+            DayOfWeek.SATURDAY to "S",
+            DayOfWeek.SUNDAY to "S"
         )
 
         days.forEach { (day, label) ->

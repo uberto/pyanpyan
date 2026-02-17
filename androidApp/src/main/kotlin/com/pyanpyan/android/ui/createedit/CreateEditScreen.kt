@@ -69,9 +69,13 @@ fun CreateEditScreen(
                     }
                 },
                 actions = {
-                    TextButton(
+                    Button(
                         onClick = { viewModel.save(onSuccess = onSave) },
-                        enabled = uiState.isValid && !uiState.isLoading
+                        enabled = uiState.isValid && !uiState.isLoading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4CAF50),
+                            contentColor = Color.White
+                        )
                     ) {
                         Text("Save")
                     }
