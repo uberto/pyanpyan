@@ -10,16 +10,20 @@ import com.pyanpyan.domain.model.AppSettings
 import com.pyanpyan.domain.model.CompletionSound
 import com.pyanpyan.domain.model.SwipeSound
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class SoundManager(
-    private val context: Context,
+    context: Context,
     settingsFlow: Flow<AppSettings>,
     scope: CoroutineScope
 ) {
+    private val appContext = context.applicationContext
     private var toneGenerator: ToneGenerator? = null
+    @Volatile
     private var currentSettings: AppSettings = AppSettings()
+    private val settingsJob: Job
 
     init {
         try {
@@ -29,7 +33,7 @@ class SoundManager(
         }
 
         // Observe settings changes
-        scope.launch {
+        settingsJob = scope.launch {
             settingsFlow.collect { settings ->
                 currentSettings = settings
             }
@@ -80,7 +84,7 @@ class SoundManager(
         try {
             val notificationUri: Uri? = RingtoneManager.getDefaultUri(type)
             if (notificationUri != null) {
-                val ringtone = RingtoneManager.getRingtone(context, notificationUri)
+                val ringtone = RingtoneManager.getRingtone(appContext, notificationUri)
                 ringtone?.play()
             }
         } catch (e: Exception) {
@@ -90,6 +94,7 @@ class SoundManager(
 
     fun release() {
         try {
+            settingsJob.cancel()
             toneGenerator?.release()
             toneGenerator = null
         } catch (e: Exception) {
