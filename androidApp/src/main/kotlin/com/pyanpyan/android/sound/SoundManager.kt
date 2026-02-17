@@ -20,6 +20,7 @@ open class SoundManager(
     scope: CoroutineScope
 ) {
     private val appContext = context?.applicationContext
+    @Volatile
     private var toneGenerator: ToneGenerator? = null
     @Volatile
     private var currentSettings: AppSettings = AppSettings()

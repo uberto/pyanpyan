@@ -1,5 +1,6 @@
 package com.pyanpyan.android.ui.checklist
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pyanpyan.android.sound.SoundManager
@@ -7,6 +8,8 @@ import com.pyanpyan.domain.command.IgnoreItemToday
 import com.pyanpyan.domain.command.MarkItemDone
 import com.pyanpyan.domain.model.*
 import com.pyanpyan.domain.repository.ChecklistRepository
+import com.pyanpyan.domain.repository.SettingsRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,11 +24,18 @@ data class ChecklistUiState(
 class ChecklistViewModel(
     private val checklistId: ChecklistId,
     private val repository: ChecklistRepository,
-    private val soundManager: SoundManager
+    context: Context?,
+    settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChecklistUiState())
     val uiState: StateFlow<ChecklistUiState> = _uiState.asStateFlow()
+
+    private val soundManager: SoundManager = SoundManager(
+        context = context?.applicationContext,
+        settingsFlow = settingsRepository.settings,
+        scope = viewModelScope
+    )
 
     init {
         loadChecklist()
@@ -94,25 +104,7 @@ class ChecklistViewModel(
         val updatedItem = command.execute(item)
         val updatedChecklist = currentChecklist.updateItem(updatedItem)
 
-        // Optimistically update UI
-        _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
-
-        // Play swipe sound
-        soundManager.playSwipeSound()
-
-        // Check if all items completed
-        if (updatedChecklist.items.all { it.state != ChecklistItemState.Pending }) {
-            soundManager.playCompletionSound()
-        }
-
-        // Persist to repository
-        viewModelScope.launch {
-            repository.saveChecklist(updatedChecklist)
-                .onFailure { error ->
-                    // Revert UI on failure
-                    loadChecklist()
-                }
-        }
+        handleItemStateChange(updatedChecklist)
     }
 
     fun ignoreItemToday(itemId: ChecklistItemId) {
@@ -123,25 +115,7 @@ class ChecklistViewModel(
         val updatedItem = command.execute(item)
         val updatedChecklist = currentChecklist.updateItem(updatedItem)
 
-        // Optimistically update UI
-        _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
-
-        // Play swipe sound
-        soundManager.playSwipeSound()
-
-        // Check if all items completed
-        if (updatedChecklist.items.all { it.state != ChecklistItemState.Pending }) {
-            soundManager.playCompletionSound()
-        }
-
-        // Persist to repository
-        viewModelScope.launch {
-            repository.saveChecklist(updatedChecklist)
-                .onFailure { error ->
-                    // Revert UI on failure
-                    loadChecklist()
-                }
-        }
+        handleItemStateChange(updatedChecklist)
     }
 
     fun resetItem(itemId: ChecklistItemId) {
@@ -153,6 +127,31 @@ class ChecklistViewModel(
 
         // Optimistically update UI
         _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
+
+        // Persist to repository
+        viewModelScope.launch {
+            repository.saveChecklist(updatedChecklist)
+                .onFailure { error ->
+                    // Revert UI on failure
+                    loadChecklist()
+                }
+        }
+    }
+
+    private fun handleItemStateChange(updatedChecklist: Checklist) {
+        // Optimistically update UI
+        _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
+
+        // Play swipe sound
+        soundManager.playSwipeSound()
+
+        // Check if all items completed
+        if (updatedChecklist.items.all { it.state != ChecklistItemState.Pending }) {
+            viewModelScope.launch {
+                delay(150) // Small delay to avoid overlapping sounds
+                soundManager.playCompletionSound()
+            }
+        }
 
         // Persist to repository
         viewModelScope.launch {

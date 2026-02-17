@@ -1,12 +1,14 @@
 package com.pyanpyan.android.ui.checklist
 
-import com.pyanpyan.android.sound.SoundManager
 import com.pyanpyan.domain.model.*
 import com.pyanpyan.domain.repository.ChecklistRepository
 import com.pyanpyan.domain.repository.RepositoryResult
+import com.pyanpyan.domain.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -57,8 +59,8 @@ class ChecklistViewModelStateResetTest {
         )
 
         val repository = FakeChecklistRepository(checklist)
-        val soundManager = FakeSoundManager()
-        val viewModel = ChecklistViewModel(checklist.id, repository, soundManager)
+        val settingsRepository = FakeSettingsRepository()
+        val viewModel = ChecklistViewModel(checklist.id, repository, null, settingsRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Verify: Item was reset to Pending
@@ -90,8 +92,8 @@ class ChecklistViewModelStateResetTest {
         )
 
         val repository = FakeChecklistRepository(checklist)
-        val soundManager = FakeSoundManager()
-        val viewModel = ChecklistViewModel(checklist.id, repository, soundManager)
+        val settingsRepository = FakeSettingsRepository()
+        val viewModel = ChecklistViewModel(checklist.id, repository, null, settingsRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Verify: Item remains Done
@@ -128,23 +130,11 @@ class ChecklistViewModelStateResetTest {
         }
     }
 
-    private class FakeSoundManager : SoundManager(
-        context = null,
-        settingsFlow = kotlinx.coroutines.flow.flowOf(
-            com.pyanpyan.domain.model.AppSettings()
-        ),
-        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined)
-    ) {
-        override fun playSwipeSound() {
-            // No-op for tests
-        }
+    private class FakeSettingsRepository : SettingsRepository {
+        override val settings: Flow<AppSettings> = flowOf(AppSettings())
 
-        override fun playCompletionSound() {
-            // No-op for tests
-        }
-
-        override fun release() {
-            // No-op for tests
+        override suspend fun updateSettings(settings: AppSettings): RepositoryResult<Unit> {
+            return RepositoryResult.success(Unit)
         }
     }
 }
