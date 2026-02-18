@@ -6,7 +6,9 @@ import kotlinx.serialization.Serializable
 data class AppSettings(
     val swipeSound: SwipeSound = SwipeSound.SOFT_CLICK,
     val completionSound: CompletionSound = CompletionSound.NOTIFICATION,
-    val enableHapticFeedback: Boolean = true
+    val enableHapticFeedback: Boolean = true,
+    val fontFamilyName: String? = null,      // null = system default
+    val fontSizeScale: Float = 1.0f          // 0.7 to 1.5
 )
 
 @Serializable
