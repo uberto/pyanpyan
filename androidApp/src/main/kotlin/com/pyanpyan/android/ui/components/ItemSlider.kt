@@ -79,6 +79,19 @@ fun ItemSlider(
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
+    // Text opacity based on position
+    val skippedOpacity = if (offsetX.value < 0) {
+        (kotlin.math.abs(offsetX.value) / maxOffset).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+
+    val doneOpacity = if (offsetX.value > 0) {
+        (offsetX.value / maxOffset).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -171,29 +184,25 @@ fun ItemSlider(
                     .background(MaterialTheme.colorScheme.primary)  // Sky blue fill
             )
 
-            // Labels shown on opposite side from ball to avoid overlap
-            when {
-                offsetX.value < -threshold -> {
-                    // Ball on left, show "Skipped" in center
-                    Text(
-                        text = "Skipped",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                    )
-                }
-                offsetX.value > threshold -> {
-                    // Ball on right, show "Done" in center
-                    Text(
-                        text = "Done",
-                        color = Color(0xFF1B5E20),
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                    )
-                }
-            }
+            // "Skipped" text on left side
+            Text(
+                text = "Skipped",
+                color = Color.DarkGray.copy(alpha = skippedOpacity),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
+            )
+
+            // "Done" text on right side
+            Text(
+                text = "Done",
+                color = Color.White.copy(alpha = doneOpacity),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+            )
         }
     }
 }
