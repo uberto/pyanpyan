@@ -22,6 +22,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
+private val SkippedGray = Color(0xFFD3D3D3)
+private val DoneGreen = Color(0xFF4CAF50)
+
 @Composable
 fun ItemSlider(
     state: SliderState,
@@ -69,12 +72,19 @@ fun ItemSlider(
     // Drag threshold (20% - easier to trigger)
     val threshold = trackWidth * 0.20f
 
+    // Background color based on position
+    val backgroundColor = when {
+        offsetX.value < -threshold -> SkippedGray
+        offsetX.value > threshold -> DoneGreen
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(40.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(backgroundColor)
             .border(1.dp, Color.DarkGray, RoundedCornerShape(20.dp))
             .pointerInput(enabled, maxOffset) {
                 if (!enabled || maxOffset <= 0) return@pointerInput
