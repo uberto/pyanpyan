@@ -72,10 +72,10 @@ fun ItemSlider(
     // Drag threshold (20% - easier to trigger)
     val threshold = trackWidth * 0.20f
 
-    // Background color based on position (swapped: left is Done, right is Skipped)
+    // Background color based on position - matches action triggered
     val backgroundColor = when {
-        offsetX.value < -threshold -> DoneGreen
-        offsetX.value > threshold -> SkippedGray
+        offsetX.value > threshold -> DoneGreen        // Drag RIGHT → Done → Green
+        offsetX.value < -threshold -> SkippedGray     // Drag LEFT → Skipped → Gray
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
@@ -114,10 +114,10 @@ fun ItemSlider(
                             val currentOffset = offsetX.value
 
                             when {
-                                currentOffset < -threshold -> {
-                                    // Snap to left (Done)
+                                currentOffset > threshold -> {
+                                    // Snap to right (Done)
                                     offsetX.animateTo(
-                                        -maxOffset,
+                                        maxOffset,
                                         animationSpec = tween(300)
                                     )
                                     if (enableHaptic) {
@@ -125,10 +125,10 @@ fun ItemSlider(
                                     }
                                     onDone()
                                 }
-                                currentOffset > threshold -> {
-                                    // Snap to right (Skipped)
+                                currentOffset < -threshold -> {
+                                    // Snap to left (Skipped)
                                     offsetX.animateTo(
-                                        maxOffset,
+                                        -maxOffset,
                                         animationSpec = tween(300)
                                     )
                                     if (enableHaptic) {
