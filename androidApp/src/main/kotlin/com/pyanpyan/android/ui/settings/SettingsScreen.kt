@@ -231,14 +231,47 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     // Font Family Setting
-                    OutlinedTextField(
-                        value = settings.fontFamilyName ?: "",
-                        onValueChange = { viewModel.updateFontFamily(it) },
-                        label = { Text("Font Family") },
-                        placeholder = { Text("System Default") },
-                        supportingText = { Text("Enter installed font name (e.g. 'serif', 'monospace', 'roboto')") },
-                        modifier = Modifier.fillMaxWidth()
+                    var fontMenuExpanded by remember { mutableStateOf(false) }
+                    val availableFonts = listOf(
+                        null to "System Default",
+                        "sans-serif" to "Sans Serif",
+                        "serif" to "Serif",
+                        "monospace" to "Monospace",
+                        "cursive" to "Cursive",
+                        "casual" to "Casual",
+                        "sans-serif-condensed" to "Sans Serif Condensed"
                     )
+
+                    ExposedDropdownMenuBox(
+                        expanded = fontMenuExpanded,
+                        onExpandedChange = { fontMenuExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            value = availableFonts.find { it.first == settings.fontFamilyName }?.second ?: "System Default",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Font Family") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fontMenuExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = fontMenuExpanded,
+                            onDismissRequest = { fontMenuExpanded = false }
+                        ) {
+                            availableFonts.forEach { (fontName, displayName) ->
+                                DropdownMenuItem(
+                                    text = { Text(displayName) },
+                                    onClick = {
+                                        viewModel.updateFontFamily(fontName)
+                                        fontMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.padding(8.dp))
 
