@@ -84,7 +84,8 @@ class MainActivity : ComponentActivity() {
                                 onBackClick = {
                                     currentScreen = Screen.Library
                                 },
-                                repository = settingsRepository
+                                repository = settingsRepository,
+                                checklistRepository = repository
                             )
                         }
                     }
