@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -168,6 +170,72 @@ fun SettingsScreen(
                             onCheckedChange = { viewModel.updateHapticFeedback(it) }
                         )
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Typography",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    // Font Family Setting
+                    OutlinedTextField(
+                        value = settings.fontFamilyName ?: "",
+                        onValueChange = { viewModel.updateFontFamily(it) },
+                        label = { Text("Font Family") },
+                        placeholder = { Text("System Default") },
+                        supportingText = { Text("Enter installed font name (e.g. 'serif', 'monospace', 'roboto')") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    // Font Size Setting
+                    Text(
+                        text = "Font Size: ${(settings.fontSizeScale * 100).roundToInt()}%",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Slider(
+                        value = settings.fontSizeScale,
+                        onValueChange = { viewModel.updateFontSize(it) },
+                        valueRange = 0.7f..1.5f,
+                        steps = 15,  // 0.05 increments
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    // Preview
+                    Text(
+                        text = "Preview:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    Text(
+                        text = "The quick brown fox jumps over the lazy dog",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    )
                 }
             }
         }
