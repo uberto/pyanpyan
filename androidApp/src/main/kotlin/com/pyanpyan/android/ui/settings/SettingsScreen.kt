@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pyanpyan.android.sound.SoundManager
 import com.pyanpyan.domain.model.CompletionSound
 import com.pyanpyan.domain.model.SwipeSound
+import com.pyanpyan.domain.repository.ChecklistRepository
 import com.pyanpyan.domain.repository.SettingsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,16 +53,23 @@ import com.pyanpyan.domain.repository.SettingsRepository
 fun SettingsScreen(
     onBackClick: () -> Unit,
     repository: SettingsRepository,
+    checklistRepository: ChecklistRepository,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val viewModel: SettingsViewModel = viewModel(
         factory = viewModelFactory {
-            initializer { SettingsViewModel(repository) }
+            initializer {
+                SettingsViewModel(
+                    repository,
+                    checklistRepository,
+                    context
+                )
+            }
         }
     )
 
     val settings by viewModel.settings.collectAsState()
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     // Create ONE SoundManager that observes the repository's settings flow
