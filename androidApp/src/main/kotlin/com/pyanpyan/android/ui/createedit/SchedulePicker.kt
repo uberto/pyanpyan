@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.pyanpyan.domain.model.TimeRange
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalTime
@@ -59,13 +60,7 @@ fun SchedulePicker(
                     onSelectionChange = onDaysChange
                 )
 
-                // Time Range
-                Text(
-                    text = "Time Range",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+                Spacer(modifier = Modifier.padding(4.dp))
 
                 TimeRangePicker(
                     timeRange = timeRange,
@@ -115,6 +110,7 @@ fun DayOfWeekChipRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeRangePicker(
     timeRange: TimeRange,
@@ -125,16 +121,8 @@ fun TimeRangePicker(
     val startTime = if (timeRange is TimeRange.Specific) timeRange.startTime else LocalTime(9, 0)
     val endTime = if (timeRange is TimeRange.Specific) timeRange.endTime else LocalTime(17, 0)
 
-    var startTimeText by remember(startTime) { mutableStateOf(formatTime(startTime)) }
-    var endTimeText by remember(endTime) { mutableStateOf(formatTime(endTime)) }
-
-    // Update text when time changes externally
-    LaunchedEffect(startTime) {
-        startTimeText = formatTime(startTime)
-    }
-    LaunchedEffect(endTime) {
-        endTimeText = formatTime(endTime)
-    }
+    var showStartPicker by remember { mutableStateOf(false) }
+    var showEndPicker by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier,
@@ -147,7 +135,10 @@ fun TimeRangePicker(
         ) {
             RadioButton(
                 selected = isAllDay,
-                onClick = { onChange(TimeRange.AllDay) }
+                onClick = { onChange(TimeRange.AllDay) },
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = Color(0xFF1B5E20)
+                )
             )
             Text(
                 text = "All Day",
@@ -156,7 +147,7 @@ fun TimeRangePicker(
             )
         }
 
-        // Specific Time Radio
+        // Specific Time Radio with inline time pickers
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
@@ -165,58 +156,128 @@ fun TimeRangePicker(
                 selected = !isAllDay,
                 onClick = {
                     onChange(TimeRange.Specific(startTime, endTime))
-                }
+                },
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = Color(0xFF1B5E20)
+                )
             )
             Text(
-                text = "Specific Time",
+                text = "From",
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
             )
-        }
-
-        // Time Pickers (only visible when Specific selected)
-        if (!isAllDay) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 48.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            OutlinedButton(
+                onClick = { showStartPicker = true },
+                enabled = !isAllDay,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                modifier = Modifier.height(36.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color.Black
+                )
             ) {
-                OutlinedTextField(
-                    value = startTimeText,
-                    onValueChange = { newText ->
-                        startTimeText = newText
-                        parseTime(newText)?.let { newStartTime ->
-                            onChange(TimeRange.Specific(newStartTime, endTime))
-                        }
-                    },
-                    label = { Text("Start") },
-                    placeholder = { Text("9:00 AM") },
-                    modifier = Modifier.weight(1f),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black
-                    ),
-                    singleLine = true
+                Text(
+                    text = formatTime(startTime),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Text(
+                text = "To",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            OutlinedButton(
+                onClick = { showEndPicker = true },
+                enabled = !isAllDay,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                modifier = Modifier.height(36.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color.Black
+                )
+            ) {
+                Text(
+                    text = formatTime(endTime),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+
+    // Start Time Picker Dialog
+    if (showStartPicker) {
+        TimePickerDialog(
+            initialTime = startTime,
+            onDismiss = { showStartPicker = false },
+            onConfirm = { newTime ->
+                onChange(TimeRange.Specific(newTime, endTime))
+                showStartPicker = false
+            }
+        )
+    }
+
+    // End Time Picker Dialog
+    if (showEndPicker) {
+        TimePickerDialog(
+            initialTime = endTime,
+            onDismiss = { showEndPicker = false },
+            onConfirm = { newTime ->
+                onChange(TimeRange.Specific(startTime, newTime))
+                showEndPicker = false
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDialog(
+    initialTime: LocalTime,
+    onDismiss: () -> Unit,
+    onConfirm: (LocalTime) -> Unit
+) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialTime.hour,
+        initialMinute = initialTime.minute,
+        is24Hour = false
+    )
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.large,
+            tonalElevation = 6.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Select Time",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                OutlinedTextField(
-                    value = endTimeText,
-                    onValueChange = { newText ->
-                        endTimeText = newText
-                        parseTime(newText)?.let { newEndTime ->
-                            onChange(TimeRange.Specific(startTime, newEndTime))
+                TimePicker(state = timePickerState)
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            val newTime = LocalTime(
+                                timePickerState.hour,
+                                timePickerState.minute
+                            )
+                            onConfirm(newTime)
                         }
-                    },
-                    label = { Text("End") },
-                    placeholder = { Text("5:00 PM") },
-                    modifier = Modifier.weight(1f),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black
-                    ),
-                    singleLine = true
-                )
+                    ) {
+                        Text("OK")
+                    }
+                }
             }
         }
     }
@@ -226,37 +287,4 @@ private fun formatTime(time: LocalTime): String {
     val hour = if (time.hour == 0) 12 else if (time.hour > 12) time.hour - 12 else time.hour
     val amPm = if (time.hour < 12) "AM" else "PM"
     return String.format("%d:%02d %s", hour, time.minute, amPm)
-}
-
-private fun parseTime(text: String): LocalTime? {
-    return try {
-        // Support formats: "9:00 AM", "9:00AM", "9 AM", "9AM", "9:00", "09:00"
-        val trimmed = text.trim().uppercase()
-        val isAM = trimmed.contains("AM")
-        val isPM = trimmed.contains("PM")
-
-        // Remove AM/PM and clean up
-        val timeOnly = trimmed.replace("AM", "").replace("PM", "").trim()
-
-        // Split by colon
-        val parts = timeOnly.split(":")
-        val hour = parts[0].trim().toIntOrNull() ?: return null
-        val minute = if (parts.size > 1) parts[1].trim().toIntOrNull() ?: 0 else 0
-
-        // Convert to 24-hour format
-        val hour24 = when {
-            !isAM && !isPM -> hour // 24-hour format already
-            isPM && hour != 12 -> hour + 12
-            isAM && hour == 12 -> 0
-            else -> hour
-        }
-
-        if (hour24 in 0..23 && minute in 0..59) {
-            LocalTime(hour24, minute)
-        } else {
-            null
-        }
-    } catch (e: Exception) {
-        null
-    }
 }

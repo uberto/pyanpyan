@@ -6,12 +6,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -132,11 +134,17 @@ fun ChecklistItemRow(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(0.7f)
             ) {
-                // Placeholder for icon (will be implemented later)
-                item.iconId?.let {
-                    Text(
-                        text = "🔹",
-                        style = MaterialTheme.typography.headlineSmall
+                // Icon
+                item.iconId?.let { iconId ->
+                    Icon(
+                        imageVector = getIconForItemId(iconId.value),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = when (item.state) {
+                            ChecklistItemState.Done -> Color(0xFF1B5E20)
+                            ChecklistItemState.IgnoredToday -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                            ChecklistItemState.Pending -> Color(0xFF1B5E20)
+                        }
                     )
                 }
 
@@ -172,5 +180,31 @@ fun ChecklistItemRow(
                 )
             }
         }
+    }
+}
+
+fun getIconForItemId(iconId: String): androidx.compose.ui.graphics.vector.ImageVector {
+    return when (iconId) {
+        "home" -> Icons.Filled.Home
+        "phone" -> Icons.Filled.Phone
+        "email" -> Icons.Filled.Email
+        "favorite" -> Icons.Filled.Favorite
+        "star" -> Icons.Filled.Star
+        "settings" -> Icons.Filled.Settings
+        "account" -> Icons.Filled.AccountCircle
+        "calendar" -> Icons.Filled.DateRange
+        "notifications" -> Icons.Filled.Notifications
+        "location" -> Icons.Filled.LocationOn
+        "search" -> Icons.Filled.Search
+        "person" -> Icons.Filled.Person
+        "info" -> Icons.Filled.Info
+        "warning" -> Icons.Filled.Warning
+        "lock" -> Icons.Filled.Lock
+        "edit" -> Icons.Filled.Edit
+        "done" -> Icons.Filled.Done
+        "arrow_forward" -> Icons.Filled.ArrowForward
+        "arrow_back" -> Icons.Filled.ArrowBack
+        "refresh" -> Icons.Filled.Refresh
+        else -> Icons.Filled.Add
     }
 }

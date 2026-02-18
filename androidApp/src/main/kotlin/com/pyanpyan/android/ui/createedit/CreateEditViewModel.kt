@@ -11,6 +11,11 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import java.util.UUID
 
+data class ItemData(
+    val title: String = "",
+    val iconId: String? = null
+)
+
 data class CreateEditUiState(
     val name: String = "",
     val color: ChecklistColor = ChecklistColor.SOFT_BLUE,
@@ -24,13 +29,13 @@ data class CreateEditUiState(
         DayOfWeek.SUNDAY
     ),
     val timeRange: TimeRange = TimeRange.AllDay,
-    val items: List<String> = listOf(""),
+    val items: List<ItemData> = listOf(ItemData()),
     val statePersistence: StatePersistenceDuration = StatePersistenceDuration.FIFTEEN_MINUTES,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 ) {
     val isValid: Boolean
-        get() = name.isNotBlank() && items.any { it.isNotBlank() }
+        get() = name.isNotBlank() && items.any { it.title.isNotBlank() }
 }
 
 class CreateEditViewModel(
@@ -59,7 +64,12 @@ class CreateEditViewModel(
                             color = it.color,
                             daysOfWeek = it.schedule.daysOfWeek,
                             timeRange = it.schedule.timeRange,
-                            items = it.items.map { item -> item.title },
+                            items = it.items.map { item ->
+                                ItemData(
+                                    title = item.title,
+                                    iconId = item.iconId?.value
+                                )
+                            },
                             statePersistence = it.statePersistence,
                             isLoading = false
                         )
@@ -101,7 +111,7 @@ class CreateEditViewModel(
 
     fun addItem() {
         _uiState.value = _uiState.value.copy(
-            items = _uiState.value.items + ""
+            items = _uiState.value.items + ItemData()
         )
     }
 
@@ -116,7 +126,15 @@ class CreateEditViewModel(
     fun updateItemText(index: Int, text: String) {
         _uiState.value = _uiState.value.copy(
             items = _uiState.value.items.mapIndexed { i, item ->
-                if (i == index) text else item
+                if (i == index) item.copy(title = text) else item
+            }
+        )
+    }
+
+    fun updateItemIcon(index: Int, iconId: String?) {
+        _uiState.value = _uiState.value.copy(
+            items = _uiState.value.items.mapIndexed { i, item ->
+                if (i == index) item.copy(iconId = iconId) else item
             }
         )
     }
@@ -133,12 +151,12 @@ class CreateEditViewModel(
                     timeRange = state.timeRange
                 ),
                 items = state.items
-                    .filter { it.isNotBlank() }
-                    .mapIndexed { index, title ->
+                    .filter { it.title.isNotBlank() }
+                    .mapIndexed { index, itemData ->
                         ChecklistItem(
                             id = ChecklistItemId(UUID.randomUUID().toString()),
-                            title = title.trim(),
-                            iconId = null,
+                            title = itemData.title.trim(),
+                            iconId = itemData.iconId?.let { ItemIconId(it) },
                             state = ChecklistItemState.Pending
                         )
                     },
