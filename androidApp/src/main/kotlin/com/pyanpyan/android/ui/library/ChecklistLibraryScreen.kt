@@ -64,6 +64,7 @@ fun ChecklistLibraryScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.primary,
         topBar = {
             TopAppBar(
                 title = {
@@ -85,7 +86,7 @@ fun ChecklistLibraryScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             )
         },
