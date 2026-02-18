@@ -72,21 +72,21 @@ fun ItemSlider(
     // Drag threshold (20% - easier to trigger)
     val threshold = trackWidth * 0.20f
 
-    // Background color based on position
+    // Background color based on position (swapped: left is Done, right is Skipped)
     val backgroundColor = when {
-        offsetX.value < -threshold -> SkippedGray
-        offsetX.value > threshold -> DoneGreen
+        offsetX.value < -threshold -> DoneGreen
+        offsetX.value > threshold -> SkippedGray
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
-    // Text opacity based on position
-    val skippedOpacity = if (offsetX.value < 0) {
+    // Text opacity based on position (swapped: Done on left, Skipped on right)
+    val doneOpacity = if (offsetX.value < 0) {
         (kotlin.math.abs(offsetX.value) / maxOffset).coerceIn(0f, 1f)
     } else {
         0f
     }
 
-    val doneOpacity = if (offsetX.value > 0) {
+    val skippedOpacity = if (offsetX.value > 0) {
         (offsetX.value / maxOffset).coerceIn(0f, 1f)
     } else {
         0f
@@ -113,7 +113,7 @@ fun ItemSlider(
 
                             when {
                                 currentOffset < -threshold -> {
-                                    // Snap to left
+                                    // Snap to left (Done)
                                     offsetX.animateTo(
                                         -maxOffset,
                                         animationSpec = tween(300)
@@ -121,10 +121,10 @@ fun ItemSlider(
                                     if (enableHaptic) {
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     }
-                                    onSkip()
+                                    onDone()
                                 }
                                 currentOffset > threshold -> {
-                                    // Snap to right
+                                    // Snap to right (Skipped)
                                     offsetX.animateTo(
                                         maxOffset,
                                         animationSpec = tween(300)
@@ -132,7 +132,7 @@ fun ItemSlider(
                                     if (enableHaptic) {
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     }
-                                    onDone()
+                                    onSkip()
                                 }
                                 else -> {
                                     // Spring back to center
@@ -184,24 +184,24 @@ fun ItemSlider(
                     .background(MaterialTheme.colorScheme.primary)  // Sky blue fill
             )
 
-            // "Skipped" text on left side
+            // "Done" text on left side
             Text(
-                text = "Skipped",
-                color = if (offsetX.value < -threshold) {
-                    Color.DarkGray.copy(alpha = skippedOpacity)
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = skippedOpacity)
-                },
+                text = "Done",
+                color = Color.White.copy(alpha = doneOpacity),
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(start = 16.dp)
             )
 
-            // "Done" text on right side
+            // "Skipped" text on right side
             Text(
-                text = "Done",
-                color = Color.White.copy(alpha = doneOpacity),
+                text = "Skipped",
+                color = if (offsetX.value > threshold) {
+                    Color.DarkGray.copy(alpha = skippedOpacity)
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = skippedOpacity)
+                },
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
