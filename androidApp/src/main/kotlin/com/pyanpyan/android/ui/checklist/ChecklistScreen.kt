@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -27,6 +28,13 @@ import com.pyanpyan.domain.model.ChecklistItem
 import com.pyanpyan.domain.model.ChecklistItemState
 import com.pyanpyan.domain.repository.ChecklistRepository
 import com.pyanpyan.domain.repository.SettingsRepository
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +90,7 @@ fun ChecklistScreen(
                     )
 
                     LazyColumn(
+                        modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         items(
@@ -96,6 +105,20 @@ fun ChecklistScreen(
                                 enableHaptic = settings.enableHapticFeedback
                             )
                         }
+                    }
+
+                    // Last accessed timestamp
+                    val lastAccessedText = formatRelativeTime(checklist.lastAccessedAt)
+                    if (lastAccessedText.isNotEmpty()) {
+                        Text(
+                            text = lastAccessedText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                        )
                     }
                 }
             }
@@ -206,5 +229,32 @@ fun getIconForItemId(iconId: String): androidx.compose.ui.graphics.vector.ImageV
         "arrow_back" -> Icons.Filled.ArrowBack
         "refresh" -> Icons.Filled.Refresh
         else -> Icons.Filled.Add
+    }
+}
+
+fun formatRelativeTime(instant: Instant?): String {
+    if (instant == null) return ""
+
+    val now = Clock.System.now()
+    val duration = now - instant
+
+    return when {
+        duration < 1.minutes -> "Last accessed just now"
+        duration < 1.hours -> {
+            val mins = duration.inWholeMinutes
+            "Last accessed $mins minute${if (mins == 1L) "" else "s"} ago"
+        }
+        duration < 24.hours -> {
+            val hrs = duration.inWholeHours
+            "Last accessed $hrs hour${if (hrs == 1L) "" else "s"} ago"
+        }
+        duration < 7.days -> {
+            val days = duration.inWholeDays
+            "Last accessed $days day${if (days == 1L) "" else "s"} ago"
+        }
+        else -> {
+            val date = instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            "Last accessed on ${date.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${date.dayOfMonth}"
+        }
     }
 }
