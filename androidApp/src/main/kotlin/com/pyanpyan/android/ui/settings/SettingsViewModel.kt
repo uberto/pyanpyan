@@ -52,4 +52,25 @@ class SettingsViewModel(
                 }
         }
     }
+
+    fun updateFontFamily(fontName: String?) {
+        viewModelScope.launch {
+            val sanitizedName = fontName?.takeIf { it.isNotBlank() }
+            val updated = settings.value.copy(fontFamilyName = sanitizedName)
+            repository.updateSettings(updated)
+                .onFailure { error ->
+                    Log.e("SettingsViewModel", "Failed to update font family: $error")
+                }
+        }
+    }
+
+    fun updateFontSize(scale: Float) {
+        viewModelScope.launch {
+            val updated = settings.value.copy(fontSizeScale = scale)
+            repository.updateSettings(updated)
+                .onFailure { error ->
+                    Log.e("SettingsViewModel", "Failed to update font size: $error")
+                }
+        }
+    }
 }
