@@ -187,7 +187,11 @@ fun ItemSlider(
             // "Skipped" text on left side
             Text(
                 text = "Skipped",
-                color = Color.DarkGray.copy(alpha = skippedOpacity),
+                color = if (offsetX.value < -threshold) {
+                    Color.DarkGray.copy(alpha = skippedOpacity)
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = skippedOpacity)
+                },
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
