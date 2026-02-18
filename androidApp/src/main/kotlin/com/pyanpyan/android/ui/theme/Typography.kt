@@ -18,24 +18,27 @@ fun buildCustomTypography(
         }
     }
 
+    // Clamp scale to valid range
+    val clampedScale = fontSizeScale.coerceIn(0.7f, 1.5f)
+
     // Get default typography and scale all styles
     val default = Typography()
     return Typography(
-        displayLarge = default.displayLarge.scale(fontFamily, fontSizeScale),
-        displayMedium = default.displayMedium.scale(fontFamily, fontSizeScale),
-        displaySmall = default.displaySmall.scale(fontFamily, fontSizeScale),
-        headlineLarge = default.headlineLarge.scale(fontFamily, fontSizeScale),
-        headlineMedium = default.headlineMedium.scale(fontFamily, fontSizeScale),
-        headlineSmall = default.headlineSmall.scale(fontFamily, fontSizeScale),
-        titleLarge = default.titleLarge.scale(fontFamily, fontSizeScale),
-        titleMedium = default.titleMedium.scale(fontFamily, fontSizeScale),
-        titleSmall = default.titleSmall.scale(fontFamily, fontSizeScale),
-        bodyLarge = default.bodyLarge.scale(fontFamily, fontSizeScale),
-        bodyMedium = default.bodyMedium.scale(fontFamily, fontSizeScale),
-        bodySmall = default.bodySmall.scale(fontFamily, fontSizeScale),
-        labelLarge = default.labelLarge.scale(fontFamily, fontSizeScale),
-        labelMedium = default.labelMedium.scale(fontFamily, fontSizeScale),
-        labelSmall = default.labelSmall.scale(fontFamily, fontSizeScale)
+        displayLarge = default.displayLarge.scale(fontFamily, clampedScale),
+        displayMedium = default.displayMedium.scale(fontFamily, clampedScale),
+        displaySmall = default.displaySmall.scale(fontFamily, clampedScale),
+        headlineLarge = default.headlineLarge.scale(fontFamily, clampedScale),
+        headlineMedium = default.headlineMedium.scale(fontFamily, clampedScale),
+        headlineSmall = default.headlineSmall.scale(fontFamily, clampedScale),
+        titleLarge = default.titleLarge.scale(fontFamily, clampedScale),
+        titleMedium = default.titleMedium.scale(fontFamily, clampedScale),
+        titleSmall = default.titleSmall.scale(fontFamily, clampedScale),
+        bodyLarge = default.bodyLarge.scale(fontFamily, clampedScale),
+        bodyMedium = default.bodyMedium.scale(fontFamily, clampedScale),
+        bodySmall = default.bodySmall.scale(fontFamily, clampedScale),
+        labelLarge = default.labelLarge.scale(fontFamily, clampedScale),
+        labelMedium = default.labelMedium.scale(fontFamily, clampedScale),
+        labelSmall = default.labelSmall.scale(fontFamily, clampedScale)
     )
 }
 
