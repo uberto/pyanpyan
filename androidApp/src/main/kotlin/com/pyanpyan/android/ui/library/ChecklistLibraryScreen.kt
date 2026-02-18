@@ -182,9 +182,9 @@ fun ChecklistCard(
             ),
         colors = CardDefaults.cardColors(
             containerColor = if (isActive) {
-                MaterialTheme.colorScheme.surface
+                Color(checklist.color.hex.toColorInt())
             } else {
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                Color(checklist.color.hex.toColorInt()).copy(alpha = 0.5f)
             }
         )
     ) {

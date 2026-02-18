@@ -60,7 +60,8 @@ fun ChecklistScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = uiState.checklist?.let { Color(android.graphics.Color.parseColor(it.color.hex)) }
+            ?: MaterialTheme.colorScheme.background
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // TopAppBar with back button
