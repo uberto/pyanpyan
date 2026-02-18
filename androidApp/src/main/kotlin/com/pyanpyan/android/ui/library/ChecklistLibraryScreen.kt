@@ -1,6 +1,7 @@
 package com.pyanpyan.android.ui.library
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -25,11 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.pyanpyan.android.R
 import com.pyanpyan.domain.model.Checklist
 import com.pyanpyan.domain.model.ChecklistId
 import com.pyanpyan.domain.repository.ChecklistRepository
@@ -62,7 +66,16 @@ fun ChecklistLibraryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Checklists") },
+                title = {
+                    Image(
+                        painter = painterResource(R.drawable.topbanner),
+                        contentDescription = "Pyanpyan",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    )
+                },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
