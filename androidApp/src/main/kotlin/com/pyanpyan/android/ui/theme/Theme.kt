@@ -4,7 +4,12 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import com.pyanpyan.domain.model.AppSettings
+import com.pyanpyan.domain.repository.SettingsRepository
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF87CEEB),      // Sky blue
@@ -22,12 +27,19 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun PyanpyanTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    settingsRepository: SettingsRepository,
     content: @Composable () -> Unit
 ) {
+    val settings by settingsRepository.settings.collectAsState(initial = AppSettings())
+
+    val typography = remember(settings.fontFamilyName, settings.fontSizeScale) {
+        buildCustomTypography(settings.fontFamilyName, settings.fontSizeScale)
+    }
+
     // Currently only light theme (calm, soft palette for ADHD users)
     MaterialTheme(
         colorScheme = LightColorScheme,
-        typography = MaterialTheme.typography,
+        typography = typography,
         content = content
     )
 }
