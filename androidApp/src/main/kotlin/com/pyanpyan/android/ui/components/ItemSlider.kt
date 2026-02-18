@@ -3,6 +3,7 @@ package com.pyanpyan.android.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -74,6 +75,7 @@ fun ItemSlider(
             .height(40.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(1.dp, Color.DarkGray, RoundedCornerShape(20.dp))
             .pointerInput(enabled, maxOffset) {
                 if (!enabled || maxOffset <= 0) return@pointerInput
 
@@ -140,32 +142,6 @@ fun ItemSlider(
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             trackWidth = with(density) { constraints.maxWidth.toFloat() }
 
-            // Single label based on position
-            when {
-                offsetX.value < -threshold -> {
-                    // Show "Skipped" on the left
-                    Text(
-                        text = "Skipped",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .padding(start = 12.dp)
-                    )
-                }
-                offsetX.value > threshold -> {
-                    // Show "Done" on the right
-                    Text(
-                        text = "Done",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 12.dp)
-                    )
-                }
-            }
-
             // Thumb (smaller, stays within bounds)
             val thumbX = with(density) {
                 // Center the track, then add offset
@@ -181,14 +157,33 @@ fun ItemSlider(
                     .padding(vertical = 4.dp)
                     .size(32.dp)
                     .clip(CircleShape)
-                    .background(
-                        when {
-                            offsetX.value < -threshold -> MaterialTheme.colorScheme.onSurfaceVariant
-                            offsetX.value > threshold -> MaterialTheme.colorScheme.primary
-                            else -> MaterialTheme.colorScheme.onSurface
-                        }
-                    )
+                    .border(2.dp, Color.Black, CircleShape)  // Thick black border
+                    .background(MaterialTheme.colorScheme.primary)  // Sky blue fill
             )
+
+            // Labels shown on opposite side from ball to avoid overlap
+            when {
+                offsetX.value < -threshold -> {
+                    // Ball on left, show "Skipped" in center
+                    Text(
+                        text = "Skipped",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    )
+                }
+                offsetX.value > threshold -> {
+                    // Ball on right, show "Done" in center
+                    Text(
+                        text = "Done",
+                        color = Color(0xFF1B5E20),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    )
+                }
+            }
         }
     }
 }
