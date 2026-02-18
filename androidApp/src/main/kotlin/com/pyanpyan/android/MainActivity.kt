@@ -32,7 +32,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         settingsRepository = DataStoreSettingsRepository(applicationContext)
         setContent {
-            PyanpyanTheme {
+            PyanpyanTheme(
+                settingsRepository = settingsRepository
+            ) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     var currentScreen by remember { mutableStateOf<Screen>(Screen.Library) }
                     val repository = remember { RepositoryFactory.getRepository(applicationContext) }
