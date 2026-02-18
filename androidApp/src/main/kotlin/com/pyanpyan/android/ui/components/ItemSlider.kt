@@ -79,15 +79,17 @@ fun ItemSlider(
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
-    // Text opacity based on position (swapped: Done on left, Skipped on right)
-    val doneOpacity = if (offsetX.value < 0) {
-        (kotlin.math.abs(offsetX.value) / maxOffset).coerceIn(0f, 1f)
+    // Text opacity based on position - reveal text when moving toward it
+    // Done text (on left) shows when moving right (positive offsetX)
+    val doneOpacity = if (offsetX.value > 0) {
+        (offsetX.value / maxOffset).coerceIn(0f, 1f)
     } else {
         0f
     }
 
-    val skippedOpacity = if (offsetX.value > 0) {
-        (offsetX.value / maxOffset).coerceIn(0f, 1f)
+    // Skipped text (on right) shows when moving left (negative offsetX)
+    val skippedOpacity = if (offsetX.value < 0) {
+        (kotlin.math.abs(offsetX.value) / maxOffset).coerceIn(0f, 1f)
     } else {
         0f
     }
@@ -187,7 +189,7 @@ fun ItemSlider(
             // "Done" text on left side
             Text(
                 text = "Done",
-                color = Color.White.copy(alpha = doneOpacity),
+                color = Color.Black.copy(alpha = doneOpacity),
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -197,11 +199,7 @@ fun ItemSlider(
             // "Skipped" text on right side
             Text(
                 text = "Skipped",
-                color = if (offsetX.value > threshold) {
-                    Color.DarkGray.copy(alpha = skippedOpacity)
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = skippedOpacity)
-                },
+                color = Color.Black.copy(alpha = skippedOpacity),
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
