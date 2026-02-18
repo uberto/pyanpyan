@@ -1,5 +1,7 @@
 package com.pyanpyan.android.ui.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -26,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -47,6 +51,9 @@ import com.pyanpyan.domain.model.CompletionSound
 import com.pyanpyan.domain.model.SwipeSound
 import com.pyanpyan.domain.repository.ChecklistRepository
 import com.pyanpyan.domain.repository.SettingsRepository
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +78,29 @@ fun SettingsScreen(
 
     val settings by viewModel.settings.collectAsState()
     val scope = rememberCoroutineScope()
+
+    // State for import confirmation dialog
+    var showImportConfirmation by remember { mutableStateOf(false) }
+    var pendingImportAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    // Export launcher
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let { viewModel.exportToFile(it) }
+    }
+
+    // Import launcher
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            viewModel.importFromFile(it) { onConfirm ->
+                pendingImportAction = onConfirm
+                showImportConfirmation = true
+            }
+        }
+    }
 
     // Create ONE SoundManager that observes the repository's settings flow
     val soundManager = remember(context) {
@@ -246,6 +276,96 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Data Management",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                val today = Clock.System.now()
+                                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                                    .date
+                                exportLauncher.launch("pyanpyan_checklists_$today.json")
+                            },
+                            modifier = Modifier.weight(0.5f)
+                        ) {
+                            Text("Export Checklists")
+                        }
+
+                        Button(
+                            onClick = {
+                                importLauncher.launch(arrayOf("application/json", "text/json"))
+                            },
+                            modifier = Modifier.weight(0.5f)
+                        ) {
+                            Text("Import Checklists")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    Text(
+                        text = "Export saves all checklists as JSON. Import replaces all checklists and resets states to Pending.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        // Import confirmation dialog
+        if (showImportConfirmation) {
+            AlertDialog(
+                onDismissRequest = {
+                    showImportConfirmation = false
+                    pendingImportAction = null
+                },
+                title = { Text("Replace All Checklists?") },
+                text = {
+                    Text("This will delete all current checklists and replace them with imported data. All item progress will be reset. Continue?")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            pendingImportAction?.invoke()
+                            showImportConfirmation = false
+                            pendingImportAction = null
+                        }
+                    ) {
+                        Text("Replace All")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showImportConfirmation = false
+                            pendingImportAction = null
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }
