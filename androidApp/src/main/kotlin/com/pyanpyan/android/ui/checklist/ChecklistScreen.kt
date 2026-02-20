@@ -9,6 +9,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -58,6 +60,27 @@ fun ChecklistScreen(
     val uiState by viewModel.uiState.collectAsState()
     val settings by settingsRepository.settings.collectAsState(initial = com.pyanpyan.domain.model.AppSettings())
 
+    // Timer lifecycle management
+    LaunchedEffect(uiState.checklist?.id) {
+        val checklist = uiState.checklist
+        val timerDuration = checklist?.timerDurationMinutes
+
+        if (timerDuration != null) {
+            val currentState = uiState.timerState
+            if (currentState is TimerState.Paused) {
+                viewModel.resumeTimer()
+            } else if (currentState is TimerState.NotConfigured) {
+                viewModel.startTimer(timerDuration)
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.pauseTimer()
+        }
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = uiState.checklist?.let { Color(android.graphics.Color.parseColor(it.color.hex)) }
@@ -89,6 +112,16 @@ fun ChecklistScreen(
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
+
+                    // Timer display
+                    if (uiState.timerState !is TimerState.NotConfigured &&
+                        uiState.timerState !is TimerState.Paused) {
+                        TimerCard(
+                            timerState = uiState.timerState,
+                            onDismiss = { viewModel.dismissTimer() },
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
 
                     LazyColumn(
                         modifier = Modifier.weight(1f),
@@ -231,6 +264,111 @@ fun getIconForItemId(iconId: String): androidx.compose.ui.graphics.vector.ImageV
         "refresh" -> Icons.Filled.Refresh
         else -> Icons.Filled.Add
     }
+}
+
+@Composable
+fun TimerCard(
+    timerState: TimerState,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when (timerState) {
+        is TimerState.Running -> {
+            Card(
+                modifier = modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "⏱️",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                        text = "Timer: ${formatTime(timerState.remainingSeconds)}",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+        }
+        is TimerState.Expired -> {
+            Card(
+                modifier = modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "⚠️",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(
+                            text = "Timer expired!",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                    TextButton(onClick = onDismiss) {
+                        Text("Dismiss")
+                    }
+                }
+            }
+        }
+        is TimerState.Completed -> {
+            Card(
+                modifier = modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "✅",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                        text = "Completed with ${formatTime(timerState.remainingSeconds)} remaining",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+        }
+        else -> {
+            // NotConfigured or Paused - don't show card
+        }
+    }
+}
+
+private fun formatTime(totalSeconds: Int): String {
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "%02d:%02d".format(minutes, seconds)
 }
 
 fun formatRelativeTime(instant: Instant?): String {
