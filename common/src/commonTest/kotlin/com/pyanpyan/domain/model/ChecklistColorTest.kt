@@ -5,8 +5,8 @@ import kotlin.test.assertEquals
 
 class ChecklistColorTest {
     @Test
-    fun has_8_color_options() {
-        assertEquals(8, ChecklistColor.entries.size)
+    fun has_16_color_options() {
+        assertEquals(16, ChecklistColor.entries.size)
     }
 
     @Test
@@ -22,6 +22,6 @@ class ChecklistColorTest {
         val colors = ChecklistColor.entries
 
         assertEquals(ChecklistColor.SOFT_BLUE, colors[0])
-        assertEquals(ChecklistColor.SOFT_ROSE, colors[7])
+        assertEquals(ChecklistColor.PEACH_CREAM, colors[15])
     }
 }
