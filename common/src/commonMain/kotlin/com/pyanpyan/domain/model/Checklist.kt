@@ -16,7 +16,8 @@ data class Checklist(
     val items: List<ChecklistItem>,
     val color: ChecklistColor,
     val statePersistence: StatePersistenceDuration,
-    val lastAccessedAt: Instant? = null
+    val lastAccessedAt: Instant? = null,
+    val timerDurationMinutes: Int? = null  // null = no timer, 1-60 = timer enabled
 ) {
     fun updateItem(updatedItem: ChecklistItem): Checklist {
         val newItems = items.map {
