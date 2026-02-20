@@ -150,6 +150,56 @@ class ChecklistViewModel(
         }
     }
 
+    fun startTimer(durationMinutes: Int) {
+        timerJob?.cancel()  // Cancel any existing timer
+        timerJob = viewModelScope.launch {
+            startTimerFromSeconds(durationMinutes * 60)
+        }
+    }
+
+    private suspend fun startTimerFromSeconds(seconds: Int) {
+        var remaining = seconds
+        while (remaining > 0) {
+            _uiState.value = _uiState.value.copy(timerState = TimerState.Running(remaining))
+            delay(1000)  // Wait 1 second
+            remaining--
+        }
+        // Timer expired
+        soundManager.playCompletionSound()
+        _uiState.value = _uiState.value.copy(timerState = TimerState.Expired)
+    }
+
+    fun pauseTimer() {
+        timerJob?.cancel()
+        val currentState = _uiState.value.timerState
+        if (currentState is TimerState.Running) {
+            _uiState.value = _uiState.value.copy(timerState = TimerState.Paused(currentState.remainingSeconds))
+        }
+    }
+
+    fun resumeTimer() {
+        val currentState = _uiState.value.timerState
+        if (currentState is TimerState.Paused) {
+            timerJob?.cancel()
+            timerJob = viewModelScope.launch {
+                startTimerFromSeconds(currentState.remainingSeconds)
+            }
+        }
+    }
+
+    fun dismissTimer() {
+        timerJob?.cancel()
+        _uiState.value = _uiState.value.copy(timerState = TimerState.NotConfigured)
+    }
+
+    private fun stopTimerAsCompleted() {
+        timerJob?.cancel()
+        val currentState = _uiState.value.timerState
+        if (currentState is TimerState.Running) {
+            _uiState.value = _uiState.value.copy(timerState = TimerState.Completed(currentState.remainingSeconds))
+        }
+    }
+
     private fun handleItemStateChange(updatedChecklist: Checklist) {
         // Optimistically update UI
         _uiState.value = _uiState.value.copy(checklist = updatedChecklist)
@@ -158,7 +208,11 @@ class ChecklistViewModel(
         soundManager.playSwipeSound()
 
         // Check if all items completed
-        if (updatedChecklist.items.all { it.state != ChecklistItemState.Pending }) {
+        val allDone = updatedChecklist.items.all {
+            it.state != ChecklistItemState.Pending
+        }
+        if (allDone) {
+            stopTimerAsCompleted()
             viewModelScope.launch {
                 delay(150) // Small delay to avoid overlapping sounds
                 soundManager.playCompletionSound()
