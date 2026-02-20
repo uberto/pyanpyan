@@ -2,6 +2,8 @@ package com.pyanpyan.android.ui.createedit
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -183,12 +185,12 @@ fun ColorPicker(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            Row(
+            LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                contentPadding = PaddingValues(horizontal = 4.dp)
             ) {
-                ChecklistColor.values().forEach { color ->
+                items(ChecklistColor.values()) { color ->
                     ColorOption(
                         color = color,
                         isSelected = color == selectedColor,
@@ -577,13 +579,6 @@ fun TimerPicker(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Timer (Optional)",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
