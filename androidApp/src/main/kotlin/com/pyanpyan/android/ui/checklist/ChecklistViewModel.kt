@@ -14,11 +14,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import kotlinx.datetime.Clock
+
+sealed class TimerState {
+    object NotConfigured : TimerState()
+    data class Running(val remainingSeconds: Int) : TimerState()
+    data class Paused(val remainingSeconds: Int) : TimerState()
+    object Expired : TimerState()
+    data class Completed(val remainingSeconds: Int) : TimerState()
+}
 
 data class ChecklistUiState(
     val checklist: Checklist? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val timerState: TimerState = TimerState.NotConfigured
 )
 
 class ChecklistViewModel(
@@ -30,6 +40,8 @@ class ChecklistViewModel(
 
     private val _uiState = MutableStateFlow(ChecklistUiState())
     val uiState: StateFlow<ChecklistUiState> = _uiState.asStateFlow()
+
+    private var timerJob: Job? = null
 
     private val soundManager: SoundManager = SoundManager(
         context = context?.applicationContext,
@@ -165,6 +177,7 @@ class ChecklistViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        timerJob?.cancel()
         soundManager.release()
     }
 }
