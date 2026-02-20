@@ -31,6 +31,8 @@ data class CreateEditUiState(
     val timeRange: TimeRange = TimeRange.AllDay,
     val items: List<ItemData> = listOf(ItemData()),
     val statePersistence: StatePersistenceDuration = StatePersistenceDuration.FIFTEEN_MINUTES,
+    val timerEnabled: Boolean = false,
+    val timerDuration: Int = 15,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 ) {
@@ -71,6 +73,8 @@ class CreateEditViewModel(
                                 )
                             },
                             statePersistence = it.statePersistence,
+                            timerEnabled = it.timerDurationMinutes != null,
+                            timerDuration = it.timerDurationMinutes ?: 15,
                             isLoading = false
                         )
                     } ?: run {
@@ -107,6 +111,14 @@ class CreateEditViewModel(
 
     fun updateStatePersistence(duration: StatePersistenceDuration) {
         _uiState.value = _uiState.value.copy(statePersistence = duration)
+    }
+
+    fun updateTimerEnabled(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(timerEnabled = enabled)
+    }
+
+    fun updateTimerDuration(duration: Int) {
+        _uiState.value = _uiState.value.copy(timerDuration = duration)
     }
 
     fun addItem() {
@@ -162,7 +174,8 @@ class CreateEditViewModel(
                     },
                 color = state.color,
                 statePersistence = state.statePersistence,
-                lastAccessedAt = null
+                lastAccessedAt = null,
+                timerDurationMinutes = if (state.timerEnabled) state.timerDuration else null
             )
 
             repository.saveChecklist(checklist)
