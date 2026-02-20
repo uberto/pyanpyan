@@ -140,6 +140,14 @@ fun CreateEditScreen(
                     onDurationSelected = { viewModel.updateStatePersistence(it) }
                 )
 
+                // Timer Picker
+                TimerPicker(
+                    timerEnabled = uiState.timerEnabled,
+                    timerDuration = uiState.timerDuration,
+                    onTimerEnabledChange = { viewModel.updateTimerEnabled(it) },
+                    onTimerDurationChange = { viewModel.updateTimerDuration(it) }
+                )
+
                 // Items Editor
                 ItemsEditor(
                     items = uiState.items,
@@ -545,6 +553,75 @@ fun ResetDurationPicker(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun TimerPicker(
+    timerEnabled: Boolean,
+    timerDuration: Int,
+    onTimerEnabledChange: (Boolean) -> Unit,
+    onTimerDurationChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Timer (Optional)",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Enable Timer",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Switch(
+                    checked = timerEnabled,
+                    onCheckedChange = onTimerEnabledChange
+                )
+            }
+
+            if (timerEnabled) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Duration: $timerDuration minutes",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Slider(
+                    value = timerDuration.toFloat(),
+                    onValueChange = { onTimerDurationChange(it.toInt()) },
+                    valueRange = 1f..60f,
+                    steps = 58,  // 60 - 1 - 1 (excludes endpoints)
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Timer starts when checklist opens and alerts you if time runs out",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

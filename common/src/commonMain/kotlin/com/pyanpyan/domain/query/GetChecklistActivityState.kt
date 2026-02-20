@@ -9,6 +9,8 @@ sealed class ChecklistActivityState {
     object Inactive : ChecklistActivityState()
 }
 
+
+
 fun Checklist.getActivityState(currentTime: LocalDateTime): ChecklistActivityState {
     // Check day of week if specified
     if (schedule.daysOfWeek.isNotEmpty() &&

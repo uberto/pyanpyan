@@ -63,50 +63,40 @@ fun ChecklistLibraryScreen(
         viewModel.refresh()
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.primary,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Image(
-                        painter = painterResource(R.drawable.topbanner),
-                        contentDescription = "Pyanpyan",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                    )
-                },
-                actions = {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onCreateClick,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Create checklist")
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.primary,
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = onCreateClick,
+                    containerColor = Color(0xFF4CAF50)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Create checklist")
+                }
             }
-        }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
-        ) {
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // Full-width banner
+                Image(
+                    painter = painterResource(R.drawable.topbanner),
+                    contentDescription = "Pyanpyan",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
             // Active checklists section
             if (uiState.activeChecklists.isNotEmpty()) {
                 items(uiState.activeChecklists) { checklist ->
@@ -160,6 +150,22 @@ fun ChecklistLibraryScreen(
                     }
                 }
             }
+                }
+            }
+        }
+
+        // Settings FAB at bottom-left
+        FloatingActionButton(
+            onClick = onSettingsClick,
+            containerColor = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Settings"
+            )
         }
 
         // Delete confirmation dialog
