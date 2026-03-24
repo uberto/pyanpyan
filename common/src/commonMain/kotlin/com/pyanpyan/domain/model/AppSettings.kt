@@ -26,3 +26,11 @@ enum class CompletionSound(val displayName: String) {
     SUCCESS_CHIME("Success Chime"),
     TADA("Tada")
 }
+
+@Serializable
+enum class ScheduleChime(val displayName: String) {
+    NONE("None"),
+    SOFT_BELL("Soft Bell"),
+    GENTLE_CHIME("Gentle Chime"),
+    MORNING_BELL("Morning Bell")
+}

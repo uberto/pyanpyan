@@ -80,15 +80,32 @@ fun ChecklistLibraryScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                // Full-width banner
-                Image(
-                    painter = painterResource(R.drawable.topbanner),
-                    contentDescription = "Pyanpyan",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                )
+                // Full-width banner with settings button overlay
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Image(
+                        painter = painterResource(R.drawable.topbanner),
+                        contentDescription = "Pyanpyan",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp)
+                    )
+
+                    // Settings button overlaying banner
+                    IconButton(
+                        onClick = onSettingsClick,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                            .size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
 
                 LazyColumn(
                     modifier = Modifier
@@ -154,20 +171,6 @@ fun ChecklistLibraryScreen(
             }
         }
 
-        // Settings FAB at bottom-left
-        FloatingActionButton(
-            onClick = onSettingsClick,
-            containerColor = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings"
-            )
-        }
-
         // Delete confirmation dialog
         checklistToDelete?.let { checklist ->
             DeleteConfirmationDialog(
@@ -229,7 +232,7 @@ fun ChecklistCard(
             ) {
                 Text(
                     text = checklist.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     color = if (isActive) {
                         MaterialTheme.colorScheme.onSurface
                     } else {

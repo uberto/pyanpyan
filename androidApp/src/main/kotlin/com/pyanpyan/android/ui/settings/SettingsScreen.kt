@@ -2,6 +2,7 @@ package com.pyanpyan.android.ui.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -79,6 +82,11 @@ fun SettingsScreen(
     val settings by viewModel.settings.collectAsState()
     val scope = rememberCoroutineScope()
 
+    // State for collapsible sections (collapsed by default)
+    var soundsExpanded by remember { mutableStateOf(false) }
+    var typographyExpanded by remember { mutableStateOf(false) }
+    var dataManagementExpanded by remember { mutableStateOf(false) }
+
     // State for import confirmation dialog
     var showImportConfirmation by remember { mutableStateOf(false) }
     var pendingImportAction by remember { mutableStateOf<(() -> Unit)?>(null) }
@@ -141,172 +149,101 @@ fun SettingsScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Sounds",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    // Swipe Sound Setting
-                    SoundDropdown(
-                        label = "Swipe Sound",
-                        options = SwipeSound.entries,
-                        selectedOption = settings.swipeSound,
-                        onOptionSelected = { viewModel.updateSwipeSound(it) },
-                        optionLabel = { it.displayName }
-                    )
-
-                    Spacer(modifier = Modifier.padding(4.dp))
-
-                    Button(
-                        onClick = { soundManager.playSwipeSound() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Test Swipe Sound")
-                    }
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-
-                    // Completion Sound Setting
-                    SoundDropdown(
-                        label = "Completion Sound",
-                        options = CompletionSound.entries,
-                        selectedOption = settings.completionSound,
-                        onOptionSelected = { viewModel.updateCompletionSound(it) },
-                        optionLabel = { it.displayName }
-                    )
-
-                    Spacer(modifier = Modifier.padding(4.dp))
-
-                    Button(
-                        onClick = { soundManager.playCompletionSound() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Test Completion Sound")
-                    }
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-
-                    // Haptic Feedback Setting
+                    // Collapsible header
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { soundsExpanded = !soundsExpanded }
+                            .padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Haptic Feedback",
-                            style = MaterialTheme.typography.bodyLarge
+                            text = "Sounds",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        Switch(
-                            checked = settings.enableHapticFeedback,
-                            onCheckedChange = { viewModel.updateHapticFeedback(it) }
+                        Icon(
+                            imageVector = if (soundsExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (soundsExpanded) "Collapse" else "Expand"
                         )
                     }
-                }
-            }
 
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Typography",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    // Font Family Setting
-                    var fontMenuExpanded by remember { mutableStateOf(false) }
-                    val availableFonts = listOf(
-                        null to "System Default",
-                        "sans-serif" to "Sans Serif",
-                        "serif" to "Serif",
-                        "monospace" to "Monospace",
-                        "cursive" to "Cursive",
-                        "casual" to "Casual",
-                        "sans-serif-condensed" to "Sans Serif Condensed"
-                    )
-
-                    ExposedDropdownMenuBox(
-                        expanded = fontMenuExpanded,
-                        onExpandedChange = { fontMenuExpanded = it }
-                    ) {
-                        OutlinedTextField(
-                            value = availableFonts.find { it.first == settings.fontFamilyName }?.second ?: "System Default",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Font Family") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fontMenuExpanded) },
-                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                    // Expandable content
+                    if (soundsExpanded) {
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .menuAnchor()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = fontMenuExpanded,
-                            onDismissRequest = { fontMenuExpanded = false }
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 16.dp)
                         ) {
-                            availableFonts.forEach { (fontName, displayName) ->
-                                DropdownMenuItem(
-                                    text = { Text(displayName) },
-                                    onClick = {
-                                        viewModel.updateFontFamily(fontName)
-                                        fontMenuExpanded = false
-                                    }
+                            // Swipe Sound Setting
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                SoundDropdown(
+                                    label = "Swipe Sound",
+                                    options = SwipeSound.entries,
+                                    selectedOption = settings.swipeSound,
+                                    onOptionSelected = { viewModel.updateSwipeSound(it) },
+                                    optionLabel = { it.displayName },
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                Button(
+                                    onClick = { soundManager.playSwipeSound() }
+                                ) {
+                                    Text("Test")
+                                }
+                            }
+
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+                            // Completion Sound Setting
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                SoundDropdown(
+                                    label = "Completion Sound",
+                                    options = CompletionSound.entries,
+                                    selectedOption = settings.completionSound,
+                                    onOptionSelected = { viewModel.updateCompletionSound(it) },
+                                    optionLabel = { it.displayName },
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                Button(
+                                    onClick = { soundManager.playCompletionSound() }
+                                ) {
+                                    Text("Test")
+                                }
+                            }
+
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+                            // Haptic Feedback Setting
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Haptic Feedback",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Switch(
+                                    checked = settings.enableHapticFeedback,
+                                    onCheckedChange = { viewModel.updateHapticFeedback(it) }
                                 )
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    // Font Size Setting
-                    Text(
-                        text = "Font Size: ${(settings.fontSizeScale * 100).roundToInt()}%",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-
-                    Slider(
-                        value = settings.fontSizeScale,
-                        onValueChange = { viewModel.updateFontSize(it) },
-                        valueRange = 0.7f..1.5f,
-                        steps = 15,  // 0.05 increments
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    // Preview
-                    Text(
-                        text = "Preview:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.padding(4.dp))
-
-                    Text(
-                        text = "The quick brown fox jumps over the lazy dog",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    )
                 }
             }
 
@@ -317,51 +254,190 @@ fun SettingsScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Data Management",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
+                    // Collapsible header
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { typographyExpanded = !typographyExpanded }
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Button(
-                            onClick = {
-                                val today = Clock.System.now()
-                                    .toLocalDateTime(TimeZone.currentSystemDefault())
-                                    .date
-                                exportLauncher.launch("pyanpyan_checklists_$today.json")
-                            },
-                            modifier = Modifier.weight(0.5f)
-                        ) {
-                            Text("Export Checklists")
-                        }
-
-                        Button(
-                            onClick = {
-                                importLauncher.launch(arrayOf("application/json", "text/json"))
-                            },
-                            modifier = Modifier.weight(0.5f)
-                        ) {
-                            Text("Import Checklists")
-                        }
+                        Text(
+                            text = "Typography",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Icon(
+                            imageVector = if (typographyExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (typographyExpanded) "Collapse" else "Expand"
+                        )
                     }
 
-                    Spacer(modifier = Modifier.padding(4.dp))
+                    // Expandable content
+                    if (typographyExpanded) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 16.dp)
+                        ) {
+                            // Font Family Setting
+                            var fontMenuExpanded by remember { mutableStateOf(false) }
+                            val availableFonts = listOf(
+                                null to "System Default",
+                                "sans-serif" to "Sans Serif",
+                                "serif" to "Serif",
+                                "monospace" to "Monospace",
+                                "cursive" to "Cursive",
+                                "casual" to "Casual",
+                                "sans-serif-condensed" to "Sans Serif Condensed"
+                            )
 
-                    Text(
-                        text = "Export saves all checklists as JSON. Import replaces all checklists and resets states to Pending.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                            ExposedDropdownMenuBox(
+                                expanded = fontMenuExpanded,
+                                onExpandedChange = { fontMenuExpanded = it }
+                            ) {
+                                OutlinedTextField(
+                                    value = availableFonts.find { it.first == settings.fontFamilyName }?.second ?: "System Default",
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Font Family") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fontMenuExpanded) },
+                                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .menuAnchor()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = fontMenuExpanded,
+                                    onDismissRequest = { fontMenuExpanded = false }
+                                ) {
+                                    availableFonts.forEach { (fontName, displayName) ->
+                                        DropdownMenuItem(
+                                            text = { Text(displayName) },
+                                            onClick = {
+                                                viewModel.updateFontFamily(fontName)
+                                                fontMenuExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.padding(8.dp))
+
+                            // Font Size Setting
+                            Text(
+                                text = "Font Size: ${(settings.fontSizeScale * 100).roundToInt()}%",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Slider(
+                                value = settings.fontSizeScale,
+                                onValueChange = { viewModel.updateFontSize(it) },
+                                valueRange = 0.7f..1.5f,
+                                steps = 15,  // 0.05 increments
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.padding(8.dp))
+
+                            // Preview
+                            Text(
+                                text = "Preview:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Spacer(modifier = Modifier.padding(4.dp))
+
+                            Text(
+                                text = "The quick brown fox jumps over the lazy dog",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Collapsible header
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { dataManagementExpanded = !dataManagementExpanded }
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Data Management",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Icon(
+                            imageVector = if (dataManagementExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (dataManagementExpanded) "Collapse" else "Expand"
+                        )
+                    }
+
+                    // Expandable content
+                    if (dataManagementExpanded) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        val today = Clock.System.now()
+                                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                                            .date
+                                        exportLauncher.launch("pyanpyan_checklists_$today.json")
+                                    },
+                                    modifier = Modifier.weight(0.5f)
+                                ) {
+                                    Text("Export Checklists")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        importLauncher.launch(arrayOf("application/json", "text/json"))
+                                    },
+                                    modifier = Modifier.weight(0.5f)
+                                ) {
+                                    Text("Import Checklists")
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.padding(4.dp))
+
+                            Text(
+                                text = "Export saves all checklists as JSON. Import replaces all checklists and resets states to Pending.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -418,7 +494,7 @@ private fun <T> SoundDropdown(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         OutlinedTextField(
             value = optionLabel(selectedOption),

@@ -4,6 +4,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -133,7 +136,9 @@ fun CreateEditScreen(
                     daysOfWeek = uiState.daysOfWeek,
                     timeRange = uiState.timeRange,
                     onDaysChange = { viewModel.updateDays(it) },
-                    onTimeRangeChange = { viewModel.updateTimeRange(it) }
+                    onTimeRangeChange = { viewModel.updateTimeRange(it) },
+                    scheduleChime = uiState.scheduleChime,
+                    onScheduleChimeChange = { viewModel.updateScheduleChime(it) }
                 )
 
                 // Reset Duration Picker
@@ -358,33 +363,116 @@ fun IconPickerDialog(
 ) {
     val availableIcons = remember {
         listOf(
+            // Food & Drink
+            "restaurant" to Icons.Filled.Restaurant,
+            "local_cafe" to Icons.Filled.LocalCafe,
+            "local_bar" to Icons.Filled.LocalBar,
+            "lunch_dining" to Icons.Filled.LunchDining,
+            "breakfast_dining" to Icons.Filled.BreakfastDining,
+            "dinner_dining" to Icons.Filled.DinnerDining,
+            "local_pizza" to Icons.Filled.LocalPizza,
+            "cake" to Icons.Filled.Cake,
+            "water_drop" to Icons.Filled.WaterDrop,
+
+            // Health & Fitness
+            "fitness_center" to Icons.Filled.FitnessCenter,
+            "directions_run" to Icons.Filled.DirectionsRun,
+            "self_improvement" to Icons.Filled.SelfImprovement,
+            "spa" to Icons.Filled.Spa,
+            "favorite" to Icons.Filled.Favorite,
+            "medical_services" to Icons.Filled.MedicalServices,
+            "pool" to Icons.Filled.Pool,
+            "sports_soccer" to Icons.Filled.SportsSoccer,
+
+            // Home & Living
             "home" to Icons.Filled.Home,
+            "bed" to Icons.Filled.Bed,
+            "weekend" to Icons.Filled.Weekend,
+            "shower" to Icons.Filled.Shower,
+            "clean_hands" to Icons.Filled.CleanHands,
+            "cleaning_services" to Icons.Filled.CleaningServices,
+            "light" to Icons.Filled.Light,
+            "kitchen" to Icons.Filled.Kitchen,
+
+            // Work & Study
+            "work" to Icons.Filled.Work,
+            "school" to Icons.Filled.School,
+            "menu_book" to Icons.Filled.MenuBook,
+            "computer" to Icons.Filled.Computer,
+            "edit" to Icons.Filled.Edit,
+            "folder" to Icons.Filled.Folder,
+            "assignment" to Icons.Filled.Assignment,
+            "laptop" to Icons.Filled.Laptop,
+
+            // Travel & Transport
+            "directions_car" to Icons.Filled.DirectionsCar,
+            "directions_bus" to Icons.Filled.DirectionsBus,
+            "directions_bike" to Icons.Filled.DirectionsBike,
+            "flight" to Icons.Filled.Flight,
+            "train" to Icons.Filled.Train,
+            "local_shipping" to Icons.Filled.LocalShipping,
+
+            // Entertainment
+            "movie" to Icons.Filled.Movie,
+            "music_note" to Icons.Filled.MusicNote,
+            "headphones" to Icons.Filled.Headphones,
+            "videogame_asset" to Icons.Filled.VideogameAsset,
+            "theaters" to Icons.Filled.Theaters,
+            "sports_esports" to Icons.Filled.SportsEsports,
+
+            // Shopping
+            "shopping_cart" to Icons.Filled.ShoppingCart,
+            "shopping_bag" to Icons.Filled.ShoppingBag,
+            "local_grocery_store" to Icons.Filled.LocalGroceryStore,
+            "store" to Icons.Filled.Store,
+            "receipt" to Icons.Filled.Receipt,
+
+            // Nature & Animals
+            "pets" to Icons.Filled.Pets,
+            "park" to Icons.Filled.Park,
+            "eco" to Icons.Filled.Eco,
+            "forest" to Icons.Filled.Forest,
+            "yard" to Icons.Filled.Yard,
+
+            // People & Communication
+            "person" to Icons.Filled.Person,
+            "people" to Icons.Filled.People,
+            "family_restroom" to Icons.Filled.FamilyRestroom,
+            "child_care" to Icons.Filled.ChildCare,
             "phone" to Icons.Filled.Phone,
             "email" to Icons.Filled.Email,
-            "favorite" to Icons.Filled.Favorite,
-            "star" to Icons.Filled.Star,
-            "settings" to Icons.Filled.Settings,
-            "account" to Icons.Filled.AccountCircle,
-            "calendar" to Icons.Filled.DateRange,
-            "notifications" to Icons.Filled.Notifications,
-            "location" to Icons.Filled.LocationOn,
-            "search" to Icons.Filled.Search,
-            "person" to Icons.Filled.Person,
-            "info" to Icons.Filled.Info,
-            "warning" to Icons.Filled.Warning,
-            "lock" to Icons.Filled.Lock,
-            "edit" to Icons.Filled.Edit,
+            "chat" to Icons.Filled.Chat,
+
+            // Time & Planning
+            "calendar_today" to Icons.Filled.CalendarToday,
+            "schedule" to Icons.Filled.Schedule,
+            "alarm" to Icons.Filled.Alarm,
+            "timer" to Icons.Filled.Timer,
+            "access_time" to Icons.Filled.AccessTime,
+
+            // Tasks & Actions
+            "check_circle" to Icons.Filled.CheckCircle,
             "done" to Icons.Filled.Done,
-            "arrow_forward" to Icons.Filled.ArrowForward,
-            "arrow_back" to Icons.Filled.ArrowBack,
-            "refresh" to Icons.Filled.Refresh
+            "task_alt" to Icons.Filled.TaskAlt,
+            "star" to Icons.Filled.Star,
+            "bookmark" to Icons.Filled.Bookmark,
+            "flag" to Icons.Filled.Flag,
+
+            // Other Useful
+            "notifications" to Icons.Filled.Notifications,
+            "location_on" to Icons.Filled.LocationOn,
+            "attach_money" to Icons.Filled.AttachMoney,
+            "volunteer_activism" to Icons.Filled.VolunteerActivism,
+            "celebration" to Icons.Filled.Celebration,
+            "card_giftcard" to Icons.Filled.CardGiftcard
         )
     }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = MaterialTheme.shapes.large,
-            tonalElevation = 6.dp
+            tonalElevation = 6.dp,
+            modifier = Modifier.heightIn(max = 600.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -394,67 +482,76 @@ fun IconPickerDialog(
                 Text(
                     text = "Select Icon",
                     style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Text(
+                    text = "${availableIcons.size} icons available",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 // Remove icon option
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Surface(
+                    onClick = { onSelectIcon(null) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    shape = MaterialTheme.shapes.small,
+                    border = if (currentIconId == null) {
+                        BorderStroke(2.dp, Color(0xFF1B5E20))
+                    } else null,
+                    color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
-                    Surface(
-                        onClick = { onSelectIcon(null) },
-                        modifier = Modifier.size(56.dp),
-                        shape = MaterialTheme.shapes.small,
-                        border = if (currentIconId == null) {
-                            BorderStroke(2.dp, Color(0xFF1B5E20))
-                        } else null,
-                        color = MaterialTheme.colorScheme.surfaceVariant
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Filled.Close,
-                                contentDescription = "No icon",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "No icon",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text("No Icon")
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Icon grid
-                val chunked = availableIcons.chunked(4)
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    chunked.forEach { rowIcons ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                // Scrollable icon grid
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(5),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(availableIcons) { (id, icon) ->
+                        Surface(
+                            onClick = { onSelectIcon(id) },
+                            modifier = Modifier
+                                .size(56.dp)
+                                .aspectRatio(1f),
+                            shape = MaterialTheme.shapes.small,
+                            border = if (currentIconId == id) {
+                                BorderStroke(2.dp, Color(0xFF1B5E20))
+                            } else null,
+                            color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
-                            rowIcons.forEach { (id, icon) ->
-                                Surface(
-                                    onClick = { onSelectIcon(id) },
-                                    modifier = Modifier.size(56.dp),
-                                    shape = MaterialTheme.shapes.small,
-                                    border = if (currentIconId == id) {
-                                        BorderStroke(2.dp, Color(0xFF1B5E20))
-                                    } else null,
-                                    color = MaterialTheme.colorScheme.surfaceVariant
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = icon,
-                                            contentDescription = id,
-                                            tint = Color(0xFF1B5E20)
-                                        )
-                                    }
-                                }
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = id,
+                                    tint = Color(0xFF1B5E20)
+                                )
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -471,27 +568,123 @@ fun IconPickerDialog(
 
 fun getIconForId(iconId: String): androidx.compose.ui.graphics.vector.ImageVector {
     return when (iconId) {
+        // Food & Drink
+        "restaurant" -> Icons.Filled.Restaurant
+        "local_cafe" -> Icons.Filled.LocalCafe
+        "local_bar" -> Icons.Filled.LocalBar
+        "lunch_dining" -> Icons.Filled.LunchDining
+        "breakfast_dining" -> Icons.Filled.BreakfastDining
+        "dinner_dining" -> Icons.Filled.DinnerDining
+        "local_pizza" -> Icons.Filled.LocalPizza
+        "cake" -> Icons.Filled.Cake
+        "water_drop" -> Icons.Filled.WaterDrop
+
+        // Health & Fitness
+        "fitness_center" -> Icons.Filled.FitnessCenter
+        "directions_run" -> Icons.Filled.DirectionsRun
+        "self_improvement" -> Icons.Filled.SelfImprovement
+        "spa" -> Icons.Filled.Spa
+        "favorite" -> Icons.Filled.Favorite
+        "medical_services" -> Icons.Filled.MedicalServices
+        "pool" -> Icons.Filled.Pool
+        "sports_soccer" -> Icons.Filled.SportsSoccer
+
+        // Home & Living
         "home" -> Icons.Filled.Home
+        "bed" -> Icons.Filled.Bed
+        "weekend" -> Icons.Filled.Weekend
+        "shower" -> Icons.Filled.Shower
+        "clean_hands" -> Icons.Filled.CleanHands
+        "cleaning_services" -> Icons.Filled.CleaningServices
+        "light" -> Icons.Filled.Light
+        "kitchen" -> Icons.Filled.Kitchen
+
+        // Work & Study
+        "work" -> Icons.Filled.Work
+        "school" -> Icons.Filled.School
+        "menu_book" -> Icons.Filled.MenuBook
+        "computer" -> Icons.Filled.Computer
+        "edit" -> Icons.Filled.Edit
+        "folder" -> Icons.Filled.Folder
+        "assignment" -> Icons.Filled.Assignment
+        "laptop" -> Icons.Filled.Laptop
+
+        // Travel & Transport
+        "directions_car" -> Icons.Filled.DirectionsCar
+        "directions_bus" -> Icons.Filled.DirectionsBus
+        "directions_bike" -> Icons.Filled.DirectionsBike
+        "flight" -> Icons.Filled.Flight
+        "train" -> Icons.Filled.Train
+        "local_shipping" -> Icons.Filled.LocalShipping
+
+        // Entertainment
+        "movie" -> Icons.Filled.Movie
+        "music_note" -> Icons.Filled.MusicNote
+        "headphones" -> Icons.Filled.Headphones
+        "videogame_asset" -> Icons.Filled.VideogameAsset
+        "theaters" -> Icons.Filled.Theaters
+        "sports_esports" -> Icons.Filled.SportsEsports
+
+        // Shopping
+        "shopping_cart" -> Icons.Filled.ShoppingCart
+        "shopping_bag" -> Icons.Filled.ShoppingBag
+        "local_grocery_store" -> Icons.Filled.LocalGroceryStore
+        "store" -> Icons.Filled.Store
+        "receipt" -> Icons.Filled.Receipt
+
+        // Nature & Animals
+        "pets" -> Icons.Filled.Pets
+        "park" -> Icons.Filled.Park
+        "eco" -> Icons.Filled.Eco
+        "forest" -> Icons.Filled.Forest
+        "yard" -> Icons.Filled.Yard
+
+        // People & Communication
+        "person" -> Icons.Filled.Person
+        "people" -> Icons.Filled.People
+        "family_restroom" -> Icons.Filled.FamilyRestroom
+        "child_care" -> Icons.Filled.ChildCare
         "phone" -> Icons.Filled.Phone
         "email" -> Icons.Filled.Email
-        "favorite" -> Icons.Filled.Favorite
+        "chat" -> Icons.Filled.Chat
+
+        // Time & Planning
+        "calendar_today" -> Icons.Filled.CalendarToday
+        "schedule" -> Icons.Filled.Schedule
+        "alarm" -> Icons.Filled.Alarm
+        "timer" -> Icons.Filled.Timer
+        "access_time" -> Icons.Filled.AccessTime
+
+        // Tasks & Actions
+        "check_circle" -> Icons.Filled.CheckCircle
+        "done" -> Icons.Filled.Done
+        "task_alt" -> Icons.Filled.TaskAlt
         "star" -> Icons.Filled.Star
+        "bookmark" -> Icons.Filled.Bookmark
+        "flag" -> Icons.Filled.Flag
+
+        // Other Useful
+        "notifications" -> Icons.Filled.Notifications
+        "location_on" -> Icons.Filled.LocationOn
+        "attach_money" -> Icons.Filled.AttachMoney
+        "volunteer_activism" -> Icons.Filled.VolunteerActivism
+        "celebration" -> Icons.Filled.Celebration
+        "card_giftcard" -> Icons.Filled.CardGiftcard
+
+        // Legacy icons for backwards compatibility
         "settings" -> Icons.Filled.Settings
         "account" -> Icons.Filled.AccountCircle
         "calendar" -> Icons.Filled.DateRange
-        "notifications" -> Icons.Filled.Notifications
         "location" -> Icons.Filled.LocationOn
         "search" -> Icons.Filled.Search
-        "person" -> Icons.Filled.Person
         "info" -> Icons.Filled.Info
         "warning" -> Icons.Filled.Warning
         "lock" -> Icons.Filled.Lock
-        "edit" -> Icons.Filled.Edit
-        "done" -> Icons.Filled.Done
         "arrow_forward" -> Icons.Filled.ArrowForward
         "arrow_back" -> Icons.Filled.ArrowBack
         "refresh" -> Icons.Filled.Refresh
-        else -> Icons.Filled.Add
+
+        else -> Icons.Filled.Circle
     }
 }
 

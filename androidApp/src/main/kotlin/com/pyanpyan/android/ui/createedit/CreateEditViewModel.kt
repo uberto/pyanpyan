@@ -33,6 +33,7 @@ data class CreateEditUiState(
     val statePersistence: StatePersistenceDuration = StatePersistenceDuration.FIFTEEN_MINUTES,
     val timerEnabled: Boolean = false,
     val timerDuration: Int = 15,
+    val scheduleChime: ScheduleChime = ScheduleChime.NONE,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 ) {
@@ -75,6 +76,7 @@ class CreateEditViewModel(
                             statePersistence = it.statePersistence,
                             timerEnabled = it.timerDurationMinutes != null,
                             timerDuration = it.timerDurationMinutes ?: 15,
+                            scheduleChime = it.scheduleChime,
                             isLoading = false
                         )
                     } ?: run {
@@ -119,6 +121,10 @@ class CreateEditViewModel(
 
     fun updateTimerDuration(duration: Int) {
         _uiState.value = _uiState.value.copy(timerDuration = duration)
+    }
+
+    fun updateScheduleChime(chime: ScheduleChime) {
+        _uiState.value = _uiState.value.copy(scheduleChime = chime)
     }
 
     fun addItem() {
@@ -175,7 +181,8 @@ class CreateEditViewModel(
                 color = state.color,
                 statePersistence = state.statePersistence,
                 lastAccessedAt = null,
-                timerDurationMinutes = if (state.timerEnabled) state.timerDuration else null
+                timerDurationMinutes = if (state.timerEnabled) state.timerDuration else null,
+                scheduleChime = state.scheduleChime
             )
 
             repository.saveChecklist(checklist)

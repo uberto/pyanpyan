@@ -207,7 +207,7 @@ fun ChecklistItemRow(
 
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     textDecoration = when (item.state) {
                         ChecklistItemState.Done -> TextDecoration.LineThrough
                         else -> null
@@ -242,27 +242,123 @@ fun ChecklistItemRow(
 
 fun getIconForItemId(iconId: String): androidx.compose.ui.graphics.vector.ImageVector {
     return when (iconId) {
+        // Food & Drink
+        "restaurant" -> Icons.Filled.Restaurant
+        "local_cafe" -> Icons.Filled.LocalCafe
+        "local_bar" -> Icons.Filled.LocalBar
+        "lunch_dining" -> Icons.Filled.LunchDining
+        "breakfast_dining" -> Icons.Filled.BreakfastDining
+        "dinner_dining" -> Icons.Filled.DinnerDining
+        "local_pizza" -> Icons.Filled.LocalPizza
+        "cake" -> Icons.Filled.Cake
+        "water_drop" -> Icons.Filled.WaterDrop
+
+        // Health & Fitness
+        "fitness_center" -> Icons.Filled.FitnessCenter
+        "directions_run" -> Icons.Filled.DirectionsRun
+        "self_improvement" -> Icons.Filled.SelfImprovement
+        "spa" -> Icons.Filled.Spa
+        "favorite" -> Icons.Filled.Favorite
+        "medical_services" -> Icons.Filled.MedicalServices
+        "pool" -> Icons.Filled.Pool
+        "sports_soccer" -> Icons.Filled.SportsSoccer
+
+        // Home & Living
         "home" -> Icons.Filled.Home
+        "bed" -> Icons.Filled.Bed
+        "weekend" -> Icons.Filled.Weekend
+        "shower" -> Icons.Filled.Shower
+        "clean_hands" -> Icons.Filled.CleanHands
+        "cleaning_services" -> Icons.Filled.CleaningServices
+        "light" -> Icons.Filled.Light
+        "kitchen" -> Icons.Filled.Kitchen
+
+        // Work & Study
+        "work" -> Icons.Filled.Work
+        "school" -> Icons.Filled.School
+        "menu_book" -> Icons.Filled.MenuBook
+        "computer" -> Icons.Filled.Computer
+        "edit" -> Icons.Filled.Edit
+        "folder" -> Icons.Filled.Folder
+        "assignment" -> Icons.Filled.Assignment
+        "laptop" -> Icons.Filled.Laptop
+
+        // Travel & Transport
+        "directions_car" -> Icons.Filled.DirectionsCar
+        "directions_bus" -> Icons.Filled.DirectionsBus
+        "directions_bike" -> Icons.Filled.DirectionsBike
+        "flight" -> Icons.Filled.Flight
+        "train" -> Icons.Filled.Train
+        "local_shipping" -> Icons.Filled.LocalShipping
+
+        // Entertainment
+        "movie" -> Icons.Filled.Movie
+        "music_note" -> Icons.Filled.MusicNote
+        "headphones" -> Icons.Filled.Headphones
+        "videogame_asset" -> Icons.Filled.VideogameAsset
+        "theaters" -> Icons.Filled.Theaters
+        "sports_esports" -> Icons.Filled.SportsEsports
+
+        // Shopping
+        "shopping_cart" -> Icons.Filled.ShoppingCart
+        "shopping_bag" -> Icons.Filled.ShoppingBag
+        "local_grocery_store" -> Icons.Filled.LocalGroceryStore
+        "store" -> Icons.Filled.Store
+        "receipt" -> Icons.Filled.Receipt
+
+        // Nature & Animals
+        "pets" -> Icons.Filled.Pets
+        "park" -> Icons.Filled.Park
+        "eco" -> Icons.Filled.Eco
+        "forest" -> Icons.Filled.Forest
+        "yard" -> Icons.Filled.Yard
+
+        // People & Communication
+        "person" -> Icons.Filled.Person
+        "people" -> Icons.Filled.People
+        "family_restroom" -> Icons.Filled.FamilyRestroom
+        "child_care" -> Icons.Filled.ChildCare
         "phone" -> Icons.Filled.Phone
         "email" -> Icons.Filled.Email
-        "favorite" -> Icons.Filled.Favorite
+        "chat" -> Icons.Filled.Chat
+
+        // Time & Planning
+        "calendar_today" -> Icons.Filled.CalendarToday
+        "schedule" -> Icons.Filled.Schedule
+        "alarm" -> Icons.Filled.Alarm
+        "timer" -> Icons.Filled.Timer
+        "access_time" -> Icons.Filled.AccessTime
+
+        // Tasks & Actions
+        "check_circle" -> Icons.Filled.CheckCircle
+        "done" -> Icons.Filled.Done
+        "task_alt" -> Icons.Filled.TaskAlt
         "star" -> Icons.Filled.Star
+        "bookmark" -> Icons.Filled.Bookmark
+        "flag" -> Icons.Filled.Flag
+
+        // Other Useful
+        "notifications" -> Icons.Filled.Notifications
+        "location_on" -> Icons.Filled.LocationOn
+        "attach_money" -> Icons.Filled.AttachMoney
+        "volunteer_activism" -> Icons.Filled.VolunteerActivism
+        "celebration" -> Icons.Filled.Celebration
+        "card_giftcard" -> Icons.Filled.CardGiftcard
+
+        // Legacy icons for backwards compatibility
         "settings" -> Icons.Filled.Settings
         "account" -> Icons.Filled.AccountCircle
         "calendar" -> Icons.Filled.DateRange
-        "notifications" -> Icons.Filled.Notifications
         "location" -> Icons.Filled.LocationOn
         "search" -> Icons.Filled.Search
-        "person" -> Icons.Filled.Person
         "info" -> Icons.Filled.Info
         "warning" -> Icons.Filled.Warning
         "lock" -> Icons.Filled.Lock
-        "edit" -> Icons.Filled.Edit
-        "done" -> Icons.Filled.Done
         "arrow_forward" -> Icons.Filled.ArrowForward
         "arrow_back" -> Icons.Filled.ArrowBack
         "refresh" -> Icons.Filled.Refresh
-        else -> Icons.Filled.Add
+
+        else -> Icons.Filled.Circle
     }
 }
 

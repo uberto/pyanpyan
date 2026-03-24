@@ -19,15 +19,17 @@ fun SchedulePicker(
     timeRange: TimeRange,
     onDaysChange: (Set<DayOfWeek>) -> Unit,
     onTimeRangeChange: (TimeRange) -> Unit,
+    scheduleChime: com.pyanpyan.domain.model.ScheduleChime = com.pyanpyan.domain.model.ScheduleChime.NONE,
+    onScheduleChimeChange: (com.pyanpyan.domain.model.ScheduleChime) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    // Expand automatically if specific time is selected (for edit mode)
+    var expanded by remember { mutableStateOf(timeRange is TimeRange.Specific) }
 
-    // Initialize with all days and all day when expanded for the first time
-    LaunchedEffect(expanded) {
-        if (expanded && daysOfWeek.isEmpty()) {
+    // Ensure all days are selected by default
+    LaunchedEffect(Unit) {
+        if (daysOfWeek.isEmpty()) {
             onDaysChange(DayOfWeek.entries.toSet())
-            onTimeRangeChange(TimeRange.AllDay)
         }
     }
 
@@ -65,6 +67,67 @@ fun SchedulePicker(
                 TimeRangePicker(
                     timeRange = timeRange,
                     onChange = onTimeRangeChange
+                )
+
+                // Show chime selector only when specific time is selected
+                if (timeRange is TimeRange.Specific) {
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    Text(
+                        text = "Activation Chime",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    ChimeDropdown(
+                        selectedChime = scheduleChime,
+                        onChimeSelected = onScheduleChimeChange
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChimeDropdown(
+    selectedChime: com.pyanpyan.domain.model.ScheduleChime,
+    onChimeSelected: (com.pyanpyan.domain.model.ScheduleChime) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = selectedChime.displayName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Chime Sound") },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            com.pyanpyan.domain.model.ScheduleChime.entries.forEach { chime ->
+                DropdownMenuItem(
+                    text = { Text(chime.displayName) },
+                    onClick = {
+                        onChimeSelected(chime)
+                        expanded = false
+                    }
                 )
             }
         }
@@ -104,7 +167,11 @@ fun DayOfWeekChipRow(
                     onSelectionChange(newSelection)
                 },
                 label = { Text(label) },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = Color(0xFF87CEEB), // Sky blue
+                    selectedLabelColor = Color.White
+                )
             )
         }
     }
@@ -208,7 +275,13 @@ fun TimeRangePicker(
             initialTime = startTime,
             onDismiss = { showStartPicker = false },
             onConfirm = { newTime ->
-                onChange(TimeRange.Specific(newTime, endTime))
+                // If new start time is >= end time, move end time 1 hour later
+                val adjustedEndTime = if (isTimeAfterOrEqual(newTime, endTime)) {
+                    addOneHour(newTime)
+                } else {
+                    endTime
+                }
+                onChange(TimeRange.Specific(newTime, adjustedEndTime))
                 showStartPicker = false
             }
         )
@@ -220,7 +293,13 @@ fun TimeRangePicker(
             initialTime = endTime,
             onDismiss = { showEndPicker = false },
             onConfirm = { newTime ->
-                onChange(TimeRange.Specific(startTime, newTime))
+                // If new end time is <= start time, move start time 1 hour earlier
+                val adjustedStartTime = if (isTimeAfterOrEqual(startTime, newTime)) {
+                    subtractOneHour(newTime)
+                } else {
+                    startTime
+                }
+                onChange(TimeRange.Specific(adjustedStartTime, newTime))
                 showEndPicker = false
             }
         )
@@ -287,4 +366,18 @@ private fun formatTime(time: LocalTime): String {
     val hour = if (time.hour == 0) 12 else if (time.hour > 12) time.hour - 12 else time.hour
     val amPm = if (time.hour < 12) "AM" else "PM"
     return String.format("%d:%02d %s", hour, time.minute, amPm)
+}
+
+private fun isTimeAfterOrEqual(time1: LocalTime, time2: LocalTime): Boolean {
+    return time1.hour > time2.hour || (time1.hour == time2.hour && time1.minute >= time2.minute)
+}
+
+private fun addOneHour(time: LocalTime): LocalTime {
+    val newHour = (time.hour + 1) % 24
+    return LocalTime(newHour, time.minute)
+}
+
+private fun subtractOneHour(time: LocalTime): LocalTime {
+    val newHour = if (time.hour == 0) 23 else time.hour - 1
+    return LocalTime(newHour, time.minute)
 }
